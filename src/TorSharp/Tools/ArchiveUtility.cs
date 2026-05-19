@@ -55,16 +55,19 @@ internal class ArchiveUtility
         using var fileStream = OpenForRead(zipPath);
         using var zipArchive = new ZipArchive(fileStream, ZipArchiveMode.Read);
 
-        if (!shouldExtract)
-        {
-            return;
-        }
-
         var createdDirs = new HashSet<string>();
         foreach (var entry in zipArchive.Entries)
         {
             if (entry.FullName.EndsWith("/"))
             {
+                continue;
+            }
+
+            if (!shouldExtract)
+            {
+                // Drain the entry to exercise decompression and detect payload corruption.
+                using var entryStream = entry.Open();
+                await entryStream.CopyToAsync(Stream.Null).ConfigureAwait(false);
                 continue;
             }
 
@@ -81,9 +84,9 @@ internal class ArchiveUtility
                 Directory.CreateDirectory(entryDir);
             }
 
-            using var entryStream = entry.Open();
+            using var entryStream2 = entry.Open();
             using var outputStream = new FileStream(fullEntryPath, FileMode.Create);
-            await entryStream.CopyToAsync(outputStream).ConfigureAwait(false);
+            await entryStream2.CopyToAsync(outputStream).ConfigureAwait(false);
         }
     }
 
@@ -147,7 +150,7 @@ internal class ArchiveUtility
         if (fileStream.Position + dataSectionPaddedSize != fileStream.Length
             && fileStream.Position + dataSectionHeader.FileSize != fileStream.Length)
         {
-            throw new TorSharpException("The Debian package's data section is expected to reach the end of the .dev file.");
+            throw new TorSharpException("The Debian package's data section is expected to reach the end of the .deb file.");
         }
 
         await ReadTarXzAsync(fileStream, outputDir, getEntryPath, shouldExtract).ConfigureAwait(false);
@@ -228,13 +231,19 @@ internal class ArchiveUtility
                 break;
             }
 
-            if (!shouldExtract)
-            {
-                return;
-            }
-
             if (entry.EntryType == System.Formats.Tar.TarEntryType.Directory)
             {
+                continue;
+            }
+
+            if (!shouldExtract)
+            {
+                // Drain the entry to exercise decompression and detect payload corruption.
+                if (entry.DataStream != null)
+                {
+                    await entry.DataStream.CopyToAsync(Stream.Null).ConfigureAwait(false);
+                }
+
                 continue;
             }
 
@@ -272,13 +281,16 @@ internal class ArchiveUtility
 
         while (await tarReader.MoveToNextEntryAsync().ConfigureAwait(false))
         {
-            if (!shouldExtract)
-            {
-                return;
-            }
-
             if (tarReader.Entry.IsDirectory)
             {
+                continue;
+            }
+
+            if (!shouldExtract)
+            {
+                // Drain the entry to exercise decompression and detect payload corruption.
+                using var entryStream = await tarReader.OpenEntryStreamAsync().ConfigureAwait(false);
+                await entryStream.CopyToAsync(Stream.Null).ConfigureAwait(false);
                 continue;
             }
 
@@ -295,9 +307,9 @@ internal class ArchiveUtility
                 Directory.CreateDirectory(entryDir);
             }
 
-            using var entryStream = await tarReader.OpenEntryStreamAsync().ConfigureAwait(false);
+            using var entryStream2 = await tarReader.OpenEntryStreamAsync().ConfigureAwait(false);
             using var outputStream = new FileStream(fullEntryPath, FileMode.Create);
-            await entryStream.CopyToAsync(outputStream).ConfigureAwait(false);
+            await entryStream2.CopyToAsync(outputStream).ConfigureAwait(false);
         }
 #endif
     }
