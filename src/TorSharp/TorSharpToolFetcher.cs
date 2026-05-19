@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Knapcode.TorSharp.Tools;
 using Knapcode.TorSharp.Tools.Privoxy;
@@ -28,6 +29,7 @@ public class TorSharpToolFetcher : ITorSharpToolFetcher
     private readonly IProgress<DownloadProgress>? _progress;
     private readonly PrivoxyFetcher _privoxyFetcher;
     private readonly TorFetcher _torFetcher;
+    private readonly MirrorManifestFetcher _mirrorFetcher;
 
     public TorSharpToolFetcher(TorSharpSettings settings, HttpClient client)
         : this(settings, client, new SimpleHttpClient(client), progress: null)
@@ -45,6 +47,7 @@ public class TorSharpToolFetcher : ITorSharpToolFetcher
         _progress = progress;
         _privoxyFetcher = new PrivoxyFetcher(settings, client);
         _torFetcher = new TorFetcher(settings, client);
+        _mirrorFetcher = new MirrorManifestFetcher(client, settings);
     }
 
     /// <summary>
@@ -61,18 +64,35 @@ public class TorSharpToolFetcher : ITorSharpToolFetcher
 
     private async Task<PartialToolUpdates> CheckForUpdatesAsync(bool allowExistingTools)
     {
+        EnableSecurityProtocols();
+
+        // Try to fetch the mirror manifest once for both tools.
+        MirrorManifest? mirrorManifest = null;
+        if (_settings.UseMirror && !string.IsNullOrWhiteSpace(_settings.MirrorManifestUrl))
+        {
+            mirrorManifest = await _mirrorFetcher.TryGetManifestAsync().ConfigureAwait(false);
+        }
+
         ToolUpdate? privoxy = null;
         if (!_settings.PrivoxySettings.Disable)
         {
+            var mirrorFile = mirrorManifest != null
+                ? MirrorManifestFetcher.GetPrivoxyEntry(mirrorManifest, _settings)
+                : null;
+
             privoxy = await CheckForUpdateAsync(
                 ToolUtility.GetPrivoxyToolSettings(_settings),
-                _privoxyFetcher,
+                new FallbackFileFetcher(mirrorFile, _privoxyFetcher),
                 allowExistingTools).ConfigureAwait(false);
         }
 
+        var torMirrorFile = mirrorManifest != null
+            ? MirrorManifestFetcher.GetTorEntry(mirrorManifest, _settings)
+            : null;
+
         var tor = await CheckForUpdateAsync(
             ToolUtility.GetTorToolSettings(_settings),
-            _torFetcher,
+            new FallbackFileFetcher(torMirrorFile, _torFetcher),
             allowExistingTools).ConfigureAwait(false);
 
         return new PartialToolUpdates
@@ -92,8 +112,6 @@ public class TorSharpToolFetcher : ITorSharpToolFetcher
         {
             return null;
         }
-
-        EnableSecurityProtocols();
 
         var latestDownload = await fetcher.GetLatestAsync().ConfigureAwait(false);
         var fileExtension = ArchiveUtility.GetFileExtension(latestDownload.Format);
@@ -182,6 +200,20 @@ public class TorSharpToolFetcher : ITorSharpToolFetcher
                         $"The tool downloaded from '{update.LatestDownload.Url.AbsoluteUri}' could not be read as a " +
                         $"{ArchiveUtility.GetFileExtension(update.LatestDownload.Format)} file.", ex);
                 }
+
+                // Verify SHA256 when the manifest provided one (mirror path).
+                var expectedSha256 = update.LatestDownload.Sha256;
+                if (!string.IsNullOrEmpty(expectedSha256))
+                {
+                    var actualSha256 = ComputeSha256(update.DestinationPath);
+                    if (!string.Equals(actualSha256, expectedSha256, StringComparison.OrdinalIgnoreCase))
+                    {
+                        throw new TorSharpException(
+                            $"SHA256 mismatch for '{update.DestinationPath}' downloaded from " +
+                            $"'{update.LatestDownload.Url.AbsoluteUri}'." +
+                            $" Expected: {expectedSha256}. Actual: {actualSha256}.");
+                    }
+                }
             }
             catch
             {
@@ -197,6 +229,14 @@ public class TorSharpToolFetcher : ITorSharpToolFetcher
                 throw;
             }
         }
+    }
+
+    private static string ComputeSha256(string filePath)
+    {
+        using var sha256 = SHA256.Create();
+        using var stream = File.OpenRead(filePath);
+        var hash = sha256.ComputeHash(stream);
+        return BitConverter.ToString(hash).Replace("-", string.Empty).ToLowerInvariant();
     }
 
     private void EnableSecurityProtocols()
@@ -233,5 +273,29 @@ public class TorSharpToolFetcher : ITorSharpToolFetcher
     {
         public ToolUpdate? Privoxy { get; set; }
         public ToolUpdate? Tor { get; set; }
+    }
+
+    /// <summary>
+    /// Returns the pre-resolved mirror entry immediately if available, otherwise delegates
+    /// to the upstream <see cref="IFileFetcher"/>. This keeps all fallback logic in one place
+    /// and avoids making the mirror a hot-path dependency.
+    /// </summary>
+    private class FallbackFileFetcher : IFileFetcher
+    {
+        private readonly DownloadableFile? _mirrorFile;
+        private readonly IFileFetcher _upstream;
+
+        public FallbackFileFetcher(DownloadableFile? mirrorFile, IFileFetcher upstream)
+        {
+            _mirrorFile = mirrorFile;
+            _upstream = upstream;
+        }
+
+        public Task<DownloadableFile> GetLatestAsync()
+        {
+            return _mirrorFile != null
+                ? Task.FromResult(_mirrorFile)
+                : _upstream.GetLatestAsync();
+        }
     }
 }

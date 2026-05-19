@@ -27,6 +27,19 @@ namespace Knapcode.TorSharp.Tests.TestSupport
             Directory.CreateDirectory(_cacheDirectory);
         }
 
+        /// <summary>
+        /// Creates an <see cref="HttpClient"/> backed by a caching handler so that
+        /// <em>all</em> GET responses — both discovery HTML/JSON and binary downloads —
+        /// are persisted on disk between test runs.  The binary-download path is still
+        /// handled by <see cref="CachingSimpleHttpClient"/> which coordinates the copy
+        /// from the same on-disk cache, so the two caches share the same directory.
+        /// </summary>
+        internal HttpClient CreateCachingHttpClient(ITestOutputHelper output, HttpMessageHandler innerHandler)
+        {
+            var cachingHandler = new CachingHttpClientHandler(output, _cacheDirectory, innerHandler);
+            return new HttpClient(cachingHandler);
+        }
+
         internal ISimpleHttpClient GetSimpleHttpClient(ITestOutputHelper output, HttpClient httpClient)
         {
             return new CachingSimpleHttpClient(output, httpClient, _cacheDirectory);

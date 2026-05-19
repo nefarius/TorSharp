@@ -43,6 +43,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.ServiceModel.Syndication" />
+    <PackageReference Include="System.Text.Json" />
   </ItemGroup>
 
   <!-- LibraryImport source generator emits unsafe code on .NET 7+ -->

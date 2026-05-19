@@ -10,14 +10,18 @@ namespace Knapcode.TorSharp.Tools;
 
 internal static class FetcherHelpers
 {
-    public static async Task<string> GetStringAsync(
+    public static Task<string> GetStringAsync(
         this HttpClient httpClient,
         Uri requestUri,
         CancellationToken token)
     {
-        using var response = await httpClient.GetAsync(requestUri, token).ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
-        return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+        return HttpHelpers.RetryAsync(async ct =>
+        {
+            using var request = HttpHelpers.BuildGet(requestUri);
+            using var response = await httpClient.SendAsync(request, ct).ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+        }, token);
     }
 
     public static async Task<DownloadableFile?> GetLatestDownloadableFileAsync(

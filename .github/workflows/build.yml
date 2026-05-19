@@ -5,6 +5,11 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
+  schedule:
+    # Weekly upstream-only test run (Tuesdays at 04:00 UTC) to detect when
+    # Tor/Privoxy upstream distribution sites change their format or become
+    # unavailable.  Results are visible in the Actions tab.
+    - cron: "0 4 * * 2"
   workflow_dispatch:
     inputs:
       build_stable_version:
@@ -33,6 +38,9 @@ jobs:
 
     env:
       TORSHARP_TEST_CACHE: ${{ github.workspace }}/tests/cache
+      # Set only on the scheduled upstream-health run so the fetcher tests
+      # exercise the upstream scrapers directly instead of the mirror.
+      TORSHARP_RUN_UPSTREAM_TESTS: ${{ github.event_name == 'schedule' && 'true' || '' }}
 
     steps:
       - name: Checkout
@@ -42,7 +50,13 @@ jobs:
         uses: actions/cache@v4
         with:
           path: tests/cache
-          key: ${{ matrix.os }}-torsharp-test
+          # Use a monthly bucket so the cache refreshes at least once a month,
+          # picking up new tool versions.  restore-keys falls back to a prior
+          # month so warm runs still benefit from cached binaries.
+          key: ${{ matrix.os }}-torsharp-test-${{ hashFiles('.github/workflows/build.yml') }}-${{ format('{0}-{1}', github.run_id, github.run_attempt) }}
+          restore-keys: |
+            ${{ matrix.os }}-torsharp-test-${{ hashFiles('.github/workflows/build.yml') }}-
+            ${{ matrix.os }}-torsharp-test-
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -56,11 +70,27 @@ jobs:
       - name: Build
         run: dotnet build TorSharp.sln --configuration Release --no-restore
 
-      - name: Install Privoxy dependencies (Linux)
+      - name: Install Privoxy runtime dependencies (Linux)
         if: runner.os == 'Linux'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libbrotli1 libmbedtls14
+          MANIFEST_URL="https://github.com/nefarius/TorSharp.Mirror/releases/latest/download/manifest.json"
+          DEPS=$(curl -fsSL --connect-timeout 15 "$MANIFEST_URL" 2>/dev/null \
+            | python3 -c "
+          import json, sys
+          try:
+              m = json.load(sys.stdin)
+              deps = m.get('privoxy', {}).get('linux-amd64', {}).get('runtimeDeps', [])
+              print(' '.join(deps))
+          except Exception:
+              pass
+          " 2>/dev/null || true)
+          if [ -z "$DEPS" ]; then
+            # Fallback: deps for the Debian bookworm/trixie-era Privoxy builds
+            DEPS="libbrotli1 libmbedtls21"
+          fi
+          echo "Installing Privoxy runtime deps: $DEPS"
+          sudo apt-get update -q
+          sudo apt-get install -y $DEPS
 
       - name: Run sample
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_sample }}

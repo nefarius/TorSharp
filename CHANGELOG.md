@@ -1,5 +1,22 @@
 # Changelog
 
+## 3.1.0
+* Add default-on mirror (`TorSharpSettings.UseMirror`): `TorSharpToolFetcher` now resolves
+  Tor and Privoxy binaries from [TorSharp.Mirror](https://github.com/nefarius/TorSharp.Mirror)
+  (a nightly-refreshed GitHub Releases cache) before falling back to upstream discovery.
+* SHA256 verification: when a mirror entry is used, the downloaded archive is verified
+  against the digest in `manifest.json`; a mismatch throws `TorSharpException`.
+* HTTP hardening: all outbound requests now send a `TorSharp/{version}` User-Agent and
+  retry up to 3× on transient 5xx / network errors with exponential back-off.
+* Drop broken Privoxy upstream sources: `privoxy.org` RSS (returning HTTP 500) and
+  SourceForge RSS (Cloudflare-blocked) are removed; `silvester.org.uk` remains as the
+  sole upstream fallback.
+* CI improvements: test-cache key is now bucketed to refresh with workflow changes;
+  discovery responses (HTML/JSON) are cached alongside binary downloads to reduce
+  upstream load; Linux Privoxy runtime deps are read dynamically from `manifest.json`
+  instead of being hardcoded.
+* New `TorSharpSettings.MirrorManifestUrl` for self-hosted mirrors.
+
 ## 3.0.0
 * Drop .NET Framework 4.6.2 and 4.7.2 targets; add net8.0 and net9.0 targets.
 * Modernize code: file-scoped namespaces, nullable annotations, LibraryImport P/Invoke.
