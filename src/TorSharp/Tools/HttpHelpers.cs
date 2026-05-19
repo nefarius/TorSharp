@@ -68,9 +68,20 @@ internal static class HttpHelpers
         if (ex is IOException) return true;
         if (ex is OperationCanceledException) return false;
 
-        if (ex is HttpRequestException)
+        if (ex is HttpRequestException hre)
         {
-            return true;
+#if NET5_0_OR_GREATER
+            // StatusCode was added in .NET 5.  When present it means the server
+            // returned a response; use it to decide.  When absent the exception
+            // is a network-level failure (DNS, TCP, TLS) which is always retryable.
+            return hre.StatusCode.HasValue
+                ? IsRetryableStatusCode(hre.StatusCode.Value)
+                : true;
+#else
+            // netstandard2.0: StatusCode is not available.  Conservatively
+            // treat as non-retryable to avoid masking permanent 4xx errors.
+            return false;
+#endif
         }
 
         if (ex is HttpListenerException hle)

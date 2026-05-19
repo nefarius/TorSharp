@@ -26,9 +26,9 @@ namespace Knapcode.TorSharp.Tests
         }
 
         /// <summary>
-        /// Verifies that the mirror manifest is reachable and contains a valid entry for
-        /// the current platform/architecture. This test always runs and is the canary for
-        /// mirror availability.
+        /// Verifies that the mirror manifest is reachable and that resolved URLs actually
+        /// come from the mirror host (not from upstream scrapers). The SHA256 presence
+        /// further confirms the mirror path was taken — upstream entries never have one.
         /// </summary>
         [RetryFact]
         [DisplayTestMethodName]
@@ -36,28 +36,34 @@ namespace Knapcode.TorSharp.Tests
         {
             using (var te = TestEnvironment.Initialize(_output))
             {
-                // Arrange: mirror on, upstream disabled by providing an impossible upstream URL.
                 var settings = te.BuildSettings();
                 settings.UseMirror = true;
 
                 using var handler = new HttpClientHandler();
-                using var cachingHandler = _httpFixture.CreateCachingHttpClient(_output, handler);
+                using var cachingClient = _httpFixture.CreateCachingHttpClient(_output, handler);
 
-                var fetcher = _httpFixture.GetTorSharpToolFetcher(_output, settings, cachingHandler);
+                var fetcher = _httpFixture.GetTorSharpToolFetcher(_output, settings, cachingClient);
 
                 // Act
                 var updates = await fetcher.CheckForUpdatesAsync();
 
-                // Assert
+                // Assert — URLs must point at the mirror, not the upstream scrapers.
                 Assert.NotNull(updates);
                 Assert.NotNull(updates.Tor);
-                _output.WriteLine("Mirror Tor URL: " + updates.Tor!.LatestDownload.Url.AbsoluteUri);
+
+                var torUrl = updates.Tor!.LatestDownload.Url;
+                _output.WriteLine("Mirror Tor URL: " + torUrl.AbsoluteUri);
+                Assert.Equal("github.com", torUrl.Host);
+                Assert.Contains("/nefarius/TorSharp.Mirror/", torUrl.AbsoluteUri, StringComparison.OrdinalIgnoreCase);
                 Assert.NotNull(updates.Tor.LatestDownload.Sha256);
 
                 if (!settings.PrivoxySettings.Disable)
                 {
                     Assert.NotNull(updates.Privoxy);
-                    _output.WriteLine("Mirror Privoxy URL: " + updates.Privoxy!.LatestDownload.Url.AbsoluteUri);
+                    var privoxyUrl = updates.Privoxy!.LatestDownload.Url;
+                    _output.WriteLine("Mirror Privoxy URL: " + privoxyUrl.AbsoluteUri);
+                    Assert.Equal("github.com", privoxyUrl.Host);
+                    Assert.Contains("/nefarius/TorSharp.Mirror/", privoxyUrl.AbsoluteUri, StringComparison.OrdinalIgnoreCase);
                     Assert.NotNull(updates.Privoxy.LatestDownload.Sha256);
                 }
             }

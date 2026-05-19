@@ -48,6 +48,10 @@ internal class MirrorManifestFetcher
             var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             return JsonSerializer.Deserialize<MirrorManifest>(json, MirrorJsonContext.Default.MirrorManifest);
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw; // Propagate explicit caller cancellation; don't swallow it.
+        }
         catch
         {
             return null;

@@ -68,12 +68,12 @@ namespace Knapcode.TorSharp.Tests.TestSupport
                 if (liveResponse.StatusCode == HttpStatusCode.OK)
                 {
                     var bytes = await liveResponse.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+                    liveResponse.Dispose(); // Done reading; return a fresh reconstructed response.
                     File.WriteAllBytes(cachePath, bytes);
-                    // Re-wrap so the content can be read again
                     return BuildCachedResponse(request, bytes);
                 }
 
-                return liveResponse;
+                return liveResponse; // Caller is responsible for disposing non-cached responses.
             }
             finally
             {
