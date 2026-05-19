@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -90,7 +89,17 @@ namespace Knapcode.TorSharp.Tests
                     Assert.True(isTor);
                     Assert.All(Directory.EnumerateFileSystemEntries(settings.ZippedToolsDirectory), e => Assert.DoesNotContain("privoxy", e, StringComparison.OrdinalIgnoreCase));
                     Assert.All(Directory.EnumerateFileSystemEntries(settings.ExtractedToolsDirectory), e => Assert.DoesNotContain("privoxy", e, StringComparison.OrdinalIgnoreCase));
-                    Assert.All(Process.GetProcesses(), p => Assert.DoesNotContain("privoxy", p.ProcessName, StringComparison.OrdinalIgnoreCase));
+
+                    // Verify the Privoxy port is free — if Privoxy had been started by this test
+                    // it would still be bound here (proxy.Stop() is called by the using-block
+                    // exit AFTER these assertions).  Checking by port instead of scanning
+                    // Process.GetProcesses() avoids false positives when parallel test assemblies
+                    // (net8.0 / net9.0) run simultaneously and one sees the other's Privoxy.
+                    using (var probe = new TcpListener(IPAddress.Loopback, settings.PrivoxySettings.Port))
+                    {
+                        probe.Start();
+                        probe.Stop();
+                    }
                 }
             }
         }
