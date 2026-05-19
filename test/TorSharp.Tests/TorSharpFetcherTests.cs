@@ -49,8 +49,8 @@ namespace Knapcode.TorSharp.Tests
 
                     // Assert
                     Assert.NotNull(updates);
-                    _output.WriteLine("Privoxy URL: " + updates.Privoxy.LatestDownload.Url.AbsoluteUri);
-                    _output.WriteLine("Tor URL: " + updates.Tor.LatestDownload.Url.AbsoluteUri);
+                    _output.WriteLine("Privoxy URL: " + updates.Privoxy!.LatestDownload.Url.AbsoluteUri);
+                    _output.WriteLine("Tor URL: " + updates.Tor!.LatestDownload.Url.AbsoluteUri);
                 }
             }
         }
@@ -78,7 +78,7 @@ namespace Knapcode.TorSharp.Tests
                     await fetcher.FetchAsync(initial);
 
                     var prefix = ToolUtility.GetPrivoxyToolSettings(settings).Prefix;
-                    var extension = Path.GetExtension(initial.Privoxy.DestinationPath);
+                    var extension = Path.GetExtension(initial.Privoxy!.DestinationPath);
                     var fakeOldPrivoxy = Path.Combine(settings.ZippedToolsDirectory, $"{prefix}0.0.1{extension}");
                     File.Move(initial.Privoxy.DestinationPath, fakeOldPrivoxy);
 
@@ -90,15 +90,15 @@ namespace Knapcode.TorSharp.Tests
                     // Assert
                     Assert.True(initial.HasUpdate);
                     Assert.Equal(ToolUpdateStatus.NoLocalVersion, initial.Privoxy.Status);
-                    Assert.Equal(ToolUpdateStatus.NoLocalVersion, initial.Tor.Status);
+                    Assert.Equal(ToolUpdateStatus.NoLocalVersion, initial.Tor!.Status);
 
                     Assert.True(newerVersion.HasUpdate);
-                    Assert.Equal(ToolUpdateStatus.NewerVersionAvailable, newerVersion.Privoxy.Status);
-                    Assert.Equal(ToolUpdateStatus.NoUpdateAvailable, newerVersion.Tor.Status);
+                    Assert.Equal(ToolUpdateStatus.NewerVersionAvailable, newerVersion.Privoxy!.Status);
+                    Assert.Equal(ToolUpdateStatus.NoUpdateAvailable, newerVersion.Tor!.Status);
 
                     Assert.False(upToDate.HasUpdate);
-                    Assert.Equal(ToolUpdateStatus.NoUpdateAvailable, upToDate.Privoxy.Status);
-                    Assert.Equal(ToolUpdateStatus.NoUpdateAvailable, upToDate.Tor.Status);
+                    Assert.Equal(ToolUpdateStatus.NoUpdateAvailable, upToDate.Privoxy!.Status);
+                    Assert.Equal(ToolUpdateStatus.NoUpdateAvailable, upToDate.Tor!.Status);
                 }
             }
         }

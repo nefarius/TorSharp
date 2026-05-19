@@ -33,12 +33,10 @@ namespace Knapcode.TorSharp.Tests
         private string ProjectDir { get; }
 
         [PlatformTheory(osPlatform: nameof(TorSharpOSPlatform.Windows))]
-        [InlineData(false, "net462")]
-        [InlineData(true, "net462")]
-        [InlineData(false, "net472")]
-        [InlineData(true, "net472")]
-        [InlineData(false, "net6.0")]
-        [InlineData(true, "net6.0")]
+        [InlineData(false, "net8.0")]
+        [InlineData(true, "net8.0")]
+        [InlineData(false, "net9.0")]
+        [InlineData(true, "net9.0")]
         [DisplayTestMethodName]
         public void VirtualDesktopToolRunner_OnlyWritesToStdoutIfSpecified(bool writeToConsole, string framework)
         {
@@ -46,8 +44,8 @@ namespace Knapcode.TorSharp.Tests
         }
 
         [RetryTheory]
-        [InlineData(false, "net6.0")]
-        [InlineData(true, "net6.0")]
+        [InlineData(false, "net9.0")]
+        [InlineData(true, "net9.0")]
         [DisplayTestMethodName]
         public void SimpleToolRuner_OnlyWritesToStdoutIfSpecified(bool writeToConsole, string framework)
         {
@@ -139,7 +137,7 @@ namespace Knapcode.TorSharp.Tests
             }
 
             _output.WriteLine("Starting: dotnet " + startInfo.Arguments);
-            var process = Process.Start(startInfo);
+            var process = Process.Start(startInfo)!;
 
             output = new ConcurrentQueue<string>();
 

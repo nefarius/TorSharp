@@ -1,5 +1,5 @@
 <Project>
-  
+
   <PropertyGroup>
     <ArtifactsDirectory Condition="'$(ArtifactsDirectory)' == ''">$(MSBuildThisFileDirectory)artifacts\</ArtifactsDirectory>
     <_ArtifactsDirectory>$([MSBuild]::EnsureTrailingSlash($(ArtifactsDirectory)))</_ArtifactsDirectory>
@@ -9,9 +9,9 @@
     <BaseOutputPath>$(_ProjectArtifactsDirectory)bin\</BaseOutputPath>
     <OutputPath>$(BaseOutputPath)$(Configuration)\</OutputPath>
   </PropertyGroup>
-  
+
   <PropertyGroup>
-    <TorSharpStableVersion>2.15.0</TorSharpStableVersion>
+    <TorSharpStableVersion>3.0.0</TorSharpStableVersion>
 
     <BranchVersionLabel Condition="'$(BranchVersionLabel)' == '' and '$(GITHUB_HEAD_REF)' != ''">$(GITHUB_HEAD_REF)</BranchVersionLabel>
     <BranchVersionLabel Condition="'$(BranchVersionLabel)' == '' and '$(GITHUB_REF)' != ''">$(GITHUB_REF)</BranchVersionLabel>
@@ -22,8 +22,22 @@
 
     <TorSharpVersion Condition="$(BUILD_STABLE_VERSION) == 'true'">$(TorSharpStableVersion)</TorSharpVersion>
     <TorSharpVersion Condition="'$(TorSharpVersion)' == ''">$(TorSharpStableVersion)-$(BranchVersionLabel)$(BuildVersionLabel)</TorSharpVersion>
-
-    <CoreOnly Condition="'$(CoreOnly)' == '' and !$([MSBuild]::IsOSPlatform('Windows'))">true</CoreOnly>
   </PropertyGroup>
-  
+
+  <!-- Shared code quality settings for all projects -->
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- Suppress XML doc warnings — the library already sets GenerateDocumentationFile and NoWarn 1591 -->
+    <WarningsNotAsErrors>CS1591</WarningsNotAsErrors>
+  </PropertyGroup>
+
+  <!-- Shared signing settings for all projects -->
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)TorSharp.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
 </Project>

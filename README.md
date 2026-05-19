@@ -13,21 +13,18 @@ This product is produced independently from the Tor® anonymity software and car
 ## Details
 
 - Supports:
-  - **.NET Core** (.NET Standard 2.0 and later, including .NET 5+)
-  - **.NET Framework** (.NET Framework 4.6.2 and later)
+  - **.NET** (.NET Standard 2.0, .NET 8, .NET 9)
+  - ❌ **.NET Framework** targets have been dropped as of v3.0.0. Use v2.x for .NET Framework 4.6.2/4.7.2 support.
   - **Windows**
-    - ✔️ Windows 10 version 1903
-    - ✔️ Windows 11 version 21H2
-    - Older Windows should work too
+    - ✔️ Windows 10 / Windows Server 2019 and later
+    - ✔️ Windows 11 / Windows Server 2022 and later
   - **Linux**
-    - ✔️ Ubuntu 20.04
-    - ✔️ Ubuntu 18.04
-    - ✔️ Ubuntu 16.04
-    - ✔️ Debian 10
-    - ⚠️ Debian 9 ([confirmed by a user](https://github.com/joelverhagen/TorSharp/issues/42#issuecomment-539403030) but [may have issues](https://github.com/joelverhagen/TorSharp/issues/64#issuecomment-774825257))
-    - ⚠️ CentOS 7 supported via `ExecutablePathOverride` ([see below](#centos-7))
-    - ⚠️ Alpine 3.18 supported via `ExecutablePathOverride` (must run `apk add tor privoxy` or `apk add tor` and disable Privoxy)
-  - ❌ Mac OS X support is not planned. I don't have a Mac 😕
+    - ✔️ Ubuntu 22.04
+    - ✔️ Ubuntu 24.04
+    - ✔️ Debian 11 / Debian 12
+    - ⚠️ CentOS/RHEL supported via `ExecutablePathOverride` ([see below](#centos-7))
+    - ⚠️ Alpine supported via `ExecutablePathOverride` (must run `apk add tor privoxy` or `apk add tor` and disable Privoxy)
+  - ❌ Mac OS X support is not planned.
 - Uses Privoxy to redirect HTTP proxy traffic to Tor (can be disabled).
 - On Windows, uses virtual desktops to manage Tor and Privoxy processes and hide the windows so it's cleaner.
 - Optionally downloads the latest version of Tor and Privoxy for you.
@@ -42,7 +39,7 @@ dotnet add package Knapcode.TorSharp
 
 Starting on .NET 6, there is built-in support for SOCKS proxies. This means you don't need Privoxy. Thanks, .NET team!
 
-See [`samples/NativeSocksProxy/Program.cs`](https://github.com/joelverhagen/TorSharp/tree/release/samples/NativeSocksProxy/Program.cs) for a working sample.
+See [`samples/NativeSocksProxy/Program.cs`](https://github.com/joelverhagen/TorSharp/tree/master/samples/NativeSocksProxy/Program.cs) for a working sample.
 
 ```csharp
 var settings = new TorSharpSettings
@@ -83,7 +80,7 @@ using (var proxy = new TorSharpProxy(settings))
 
 ## Example using Privoxy
 
-See [`samples/TorSharp.Sandbox/Program.cs`](https://github.com/joelverhagen/TorSharp/tree/release/samples/TorSharp.Sandbox/Program.cs) for a working sample.
+See [`samples/TorSharp.Sandbox/Program.cs`](https://github.com/joelverhagen/TorSharp/tree/master/samples/TorSharp.Sandbox/Program.cs) for a working sample.
 
 ```csharp
 // configure
@@ -127,7 +124,7 @@ This most likely is happening because the URLs where we fetch Tor or Privoxy fro
 
 1. Work around the issue by setting up the tools manually and not using `TorSharpToolFetcher`. [See below](#how-do-i-set-up-the-tools-manually).
 
-1. Investigate the issue yourself. The [TorSharp.Sandbox](https://github.com/joelverhagen/TorSharp/blob/release/samples/TorSharp.Sandbox/Program.cs) project is helpful for this. Pull requests accepted 🏆.
+1. Investigate the issue yourself. The [TorSharp.Sandbox](https://github.com/joelverhagen/TorSharp/blob/master/samples/TorSharp.Sandbox/Program.cs) project is helpful for this. Pull requests accepted 🏆.
 
 ### How do I set up the tools manually?
 
@@ -147,7 +144,7 @@ If you don't want to use the `TorSharpToolFetcher` to download the latest versio
 
 ### Can I run multiple instances in parallel?
 
-Yes, you can. See this sample: [`samples/MultipleInstances/Program.cs`](https://github.com/joelverhagen/TorSharp/tree/release/samples/MultipleInstances/Program.cs).
+Yes, you can. See this sample: [`samples/MultipleInstances/Program.cs`](https://github.com/joelverhagen/TorSharp/tree/master/samples/MultipleInstances/Program.cs).
 
 However, you need to adhere to the following guidance.
 
@@ -175,7 +172,7 @@ In general, directory configuration values must be different from all of the oth
 
 By default, TorSharp lets the tools (Tor, Privoxy) log to the main process stdout and stderr. If you want to disable this behavior, set `TorSharpSettings.WriteToConsole` to `false`. If you want to intercept the output from the tools, attach to the `TorSharpProxy.OutputDataReceived` (for stdout) and `TorSharpProxy.ErrorDataReceived` (for stderr) events. In your event handler, you can log to some external sink or enqueue the line for processing. The event handlers are fired from a task using the default task scheduler so this blocks one of the shared worker threads. Don't do too much heavy lifting there, I guess! If you want to know which tool sent the log message, look at the `DataEventArgs.ExecutablePath` property.
 
-For a full sample, see this: [`samples/CustomLogging/Program.cs`](https://github.com/joelverhagen/TorSharp/blob/release/samples/CustomLogging/Program.cs).
+For a full sample, see this: [`samples/CustomLogging/Program.cs`](https://github.com/joelverhagen/TorSharp/blob/master/samples/CustomLogging/Program.cs).
 
 ### Privoxy fetched by TorSharp fails to start? Try installing missing dependencies.
 

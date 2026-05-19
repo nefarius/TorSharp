@@ -44,8 +44,8 @@ namespace Knapcode.TorSharp.Tests
         {
             var settings = new TorSharpSettings
             {
-                PrivoxySettings = null,
-                TorSettings = null,
+                PrivoxySettings = null!,
+                TorSettings = null!,
             };
 
             property.SetOld(settings, property.Value);
@@ -163,11 +163,11 @@ namespace Knapcode.TorSharp.Tests
             {
                 return new Property(
                     getNew.Body.ToString(),
-                    x => getOld(x),
+                    x => getOld(x)!,
                     (x, y) => setOld(x, (T)y),
-                    x => getNew.Compile()(x),
+                    x => getNew.Compile()(x)!,
                     (x, y) => setNew(x, (T)y),
-                    value);
+                    value!);
             }
         }
     }

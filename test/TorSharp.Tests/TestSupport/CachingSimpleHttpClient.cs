@@ -28,7 +28,7 @@ namespace Knapcode.TorSharp.Tests.TestSupport
             _cacheDirectory = cacheDirectory;
         }
 
-        public async Task DownloadToFileAsync(Uri requestUri, string path, IProgress<DownloadProgress> progress)
+        public async Task DownloadToFileAsync(Uri requestUri, string path, IProgress<DownloadProgress>? progress)
         {
             string cachePath;
             using (var sha1 = SHA1.Create())
@@ -42,7 +42,7 @@ namespace Knapcode.TorSharp.Tests.TestSupport
             SemaphoreSlim semaphore;
             lock (_lock)
             {
-                if (!_pathToSemaphore.TryGetValue(cachePath, out semaphore))
+                if (!_pathToSemaphore.TryGetValue(cachePath, out semaphore!))
                 {
                     semaphore = new SemaphoreSlim(1);
                     _pathToSemaphore.Add(cachePath, semaphore);

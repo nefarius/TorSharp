@@ -19,7 +19,7 @@ namespace Knapcode.TorSharp.Tests.TestSupport
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             var requestId = Interlocked.Increment(ref _requestCounter);
-            _output.WriteLine($"[{DateTimeOffset.UtcNow:O}] [{requestId}] {request.Method} {request.RequestUri.AbsoluteUri}");
+            _output.WriteLine($"[{DateTimeOffset.UtcNow:O}] [{requestId}] {request.Method} {request.RequestUri?.AbsoluteUri}");
             try
             {
                 var response = await base.SendAsync(request, cancellationToken);

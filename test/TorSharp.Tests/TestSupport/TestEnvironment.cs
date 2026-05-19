@@ -6,7 +6,7 @@ namespace Knapcode.TorSharp.Tests.TestSupport
 {
     public class TestEnvironment : IDisposable
     {
-        private readonly string _torControlPassword;
+        private readonly string? _torControlPassword;
         private readonly ReservedPorts _ports;
         private bool _disposed;
         private readonly ITestOutputHelper _output;

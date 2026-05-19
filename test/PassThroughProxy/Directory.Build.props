@@ -1,0 +1,12 @@
+<Project>
+
+  <!-- Inherit test directory settings -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <!-- PassThroughProxy is a third-party library; relax nullable errors and error-on-warnings to avoid churn -->
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+</Project>

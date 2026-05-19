@@ -2,9 +2,9 @@ name: Build
 
 on:
   push:
-    branches: [release]
+    branches: [master]
   pull_request:
-    branches: [release]
+    branches: [master]
   workflow_dispatch:
     inputs:
       build_stable_version:
@@ -27,8 +27,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os:
-          [windows-2022, windows-2019, ubuntu-22.04, ubuntu-20.04]
+        os: [windows-2022, windows-2025, ubuntu-24.04]
 
     runs-on: ${{ matrix.os }}
 
@@ -37,67 +36,85 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Cache test downloads
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: tests/cache
           key: ${{ matrix.os }}-torsharp-test
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 7.0.x
+          dotnet-version: |
+            9.0.x
 
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore TorSharp.sln
 
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build TorSharp.sln --configuration Release --no-restore
 
       - name: Install Privoxy dependencies (Linux)
         if: runner.os == 'Linux'
         run: |
-          sudo apt-get install -y libbrotli1
-          curl -O http://ftp.us.debian.org/debian/pool/main/m/mbedtls/libmbedcrypto3_2.16.0-1_amd64.deb
-          curl -O http://ftp.us.debian.org/debian/pool/main/m/mbedtls/libmbedx509-0_2.16.0-1_amd64.deb
-          curl -O http://ftp.us.debian.org/debian/pool/main/m/mbedtls/libmbedtls12_2.16.0-1_amd64.deb
-          echo "eb6751c98adfdf0e7a5a52fbd1b5a284ffd429e73abb4f0a4497374dd9f142c7 libmbedcrypto3_2.16.0-1_amd64.deb" > SHA256SUMS
-          echo "e8ea5dd71b27591c0f55c1d49f597d3d3b5c747bde25d3b3c3b03ca281fc3045 libmbedx509-0_2.16.0-1_amd64.deb" >> SHA256SUMS
-          echo "786c7e7805a51f3eccd449dd44936f735afa97fc5f3702411090d8b40f0e9eda libmbedtls12_2.16.0-1_amd64.deb" >> SHA256SUMS
-          sha256sum -c SHA256SUMS || { echo "Checksum failed. Aborting."; exit 1; }
-          sudo apt-get install -y --allow-downgrades ./*.deb
+          sudo apt-get update
+          sudo apt-get install -y libbrotli1 libmbedtls14
 
       - name: Run sample
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_sample }}
         run: |
           date
-          dotnet run --project samples/TorSharp.Sandbox --framework net6.0
+          dotnet run --project samples/TorSharp.Sandbox --framework net9.0
 
       - name: Setup tmate session (Linux)
         if: ${{ runner.os == 'Linux' && github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
         uses: mxschmitt/action-tmate@v3
 
       - name: Test
-        run: dotnet test --configuration Release --no-restore --no-build --logger "console;verbosity=normal" --blame-hang-timeout 30m
+        run: dotnet test TorSharp.sln --configuration Release --no-restore --no-build --logger "console;verbosity=normal" --blame-hang-timeout 30m
 
       - name: Format
-        run: dotnet format --no-restore --verify-no-changes
+        run: dotnet format TorSharp.sln --no-restore --verify-no-changes
 
       - name: Pack
-        run: dotnet pack --configuration Release --no-restore --no-build
+        if: matrix.os == 'windows-2025'
+        run: dotnet pack TorSharp.sln --configuration Release --no-restore --no-build
         env:
           BUILD_STABLE_VERSION: ${{ inputs.build_stable_version }}
 
       - name: Upload artifacts
-        if: matrix.os == 'windows-2022'
-        uses: actions/upload-artifact@v3
+        if: matrix.os == 'windows-2025'
+        uses: actions/upload-artifact@v4
         with:
           name: packages
           path: |
             artifacts/TorSharp/bin/Release/*.nupkg
 
+  publish:
+    needs: build
+    if: github.event_name == 'push'
+    runs-on: windows-2025
+
+    permissions:
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            9.0.x
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: packages
+          path: packages
+
       - name: Push artifacts
-        if: matrix.os == 'windows-2022' && github.event_name == 'push'
-        run: dotnet nuget push artifacts\TorSharp\bin\Release\*.nupkg -s https://nuget.pkg.github.com/joelverhagen/index.json -k ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+        run: dotnet nuget push packages\*.nupkg -s https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json -k ${{ secrets.GITHUB_TOKEN }} --skip-duplicate

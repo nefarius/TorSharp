@@ -1,27 +1,26 @@
 ﻿using System.IO;
-using Newtonsoft.Json;
+using System.Text.Json;
 
-namespace Proxy.Configurations
+namespace Proxy.Configurations;
+
+public class Configuration
 {
-    public class Configuration
+    private static Configuration? _configuration;
+
+    public Configuration(Server server, Authentication authentication, Firewall firewall)
     {
-        private static Configuration _configuration;
+        Server = server;
+        Authentication = authentication;
+        Firewall = firewall;
+    }
 
-        public Configuration(Server server, Authentication authentication, Firewall firewall)
-        {
-            Server = server;
-            Authentication = authentication;
-            Firewall = firewall;
-        }
+    public Server Server { get; private set; }
+    public Authentication Authentication { get; private set; }
+    public Firewall Firewall { get; private set; }
 
-        public Server Server { get; private set; }
-        public Authentication Authentication { get; private set; }
-        public Firewall Firewall { get; private set; }
-
-        public static Configuration Settings
-        {
-            get { return _configuration ?? (_configuration = JsonConvert.DeserializeObject<Configuration>(File.ReadAllText("config.json"))); }
-            set { _configuration = value; }
-        }
+    public static Configuration? Settings
+    {
+        get => _configuration ??= JsonSerializer.Deserialize<Configuration>(File.ReadAllText("config.json"));
+        set => _configuration = value;
     }
 }

@@ -7,9 +7,9 @@ namespace Knapcode.TorSharp.Tests.TestSupport
     public class TestDirectory : IDisposable
     {
         private readonly string _originalPath;
-        private readonly ITestOutputHelper _output;
+        private readonly ITestOutputHelper? _output;
 
-        public TestDirectory(ITestOutputHelper output)
+        public TestDirectory(ITestOutputHelper? output)
         {
             _output = output;
 
