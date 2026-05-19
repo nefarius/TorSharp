@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,7 +9,9 @@ namespace Knapcode.TorSharp.Tools;
 
 internal sealed class CliWrapToolRunner : IToolRunner
 {
-    private readonly ConcurrentBag<RunningTool> _running = new();
+    private readonly object _lock = new();
+    private readonly List<RunningTool> _running = new();
+    private bool _shutdownRequested;
 
     public event EventHandler<DataEventArgs>? Stdout;
     public event EventHandler<DataEventArgs>? Stderr;
@@ -30,7 +32,20 @@ internal sealed class CliWrapToolRunner : IToolRunner
         var forcefulCts = new CancellationTokenSource();
         var gracefulCts = new CancellationTokenSource();
         var task = cmd.ExecuteAsync(forcefulCts.Token, gracefulCts.Token);
-        _running.Add(new RunningTool(task, forcefulCts, gracefulCts));
+        var entry = new RunningTool(task, forcefulCts, gracefulCts);
+
+        lock (_lock)
+        {
+            if (_shutdownRequested)
+            {
+                // Stop() was called concurrently; cancel the just-launched process immediately.
+                CancelAndDispose(entry);
+                throw new TorSharpException(
+                    $"Cannot start '{tool.ExecutablePath}': the tool runner has already been stopped.");
+            }
+
+            _running.Add(entry);
+        }
 
         // Fire-and-forget: the process runs independently until Stop() is called.
         return Task.CompletedTask;
@@ -38,10 +53,60 @@ internal sealed class CliWrapToolRunner : IToolRunner
 
     public void Stop()
     {
-        while (_running.TryTake(out var r))
+        List<RunningTool> snapshot;
+        lock (_lock)
+        {
+            if (_shutdownRequested)
+            {
+                return;
+            }
+
+            _shutdownRequested = true;
+            snapshot = new List<RunningTool>(_running);
+            _running.Clear();
+        }
+
+        List<Exception>? unexpected = null;
+        foreach (var r in snapshot)
+        {
+            try
+            {
+                ShutdownOne(r);
+            }
+            catch (Exception ex)
+            {
+                (unexpected ??= new List<Exception>()).Add(ex);
+            }
+        }
+
+        if (unexpected != null)
+        {
+            throw new AggregateException(
+                "Unexpected exceptions occurred while stopping tool processes.", unexpected);
+        }
+    }
+
+    public void Dispose() => Stop();
+
+    private static void ShutdownOne(RunningTool r)
+    {
+        try
         {
             r.GracefulCts.Cancel();
-            if (!r.Task.Task.Wait(TimeSpan.FromSeconds(1)))
+
+            // Wait up to 1 s for graceful exit; swallow AggregateException in case the
+            // task already faulted/was cancelled before we entered this wait.
+            bool completed;
+            try
+            {
+                completed = r.Task.Task.Wait(TimeSpan.FromSeconds(1));
+            }
+            catch (AggregateException)
+            {
+                completed = true;
+            }
+
+            if (!completed)
             {
                 r.ForcefulCts.Cancel();
             }
@@ -50,21 +115,41 @@ internal sealed class CliWrapToolRunner : IToolRunner
             {
                 r.Task.GetAwaiter().GetResult();
             }
-            catch
+            catch (OperationCanceledException)
             {
-                // OperationCanceledException and non-zero exit codes are expected on shutdown.
+                // Expected: graceful or forceful cancellation on shutdown.
             }
-
+            // Any other exception propagates to Stop(), which aggregates and rethrows.
+        }
+        finally
+        {
             r.GracefulCts.Dispose();
             r.ForcefulCts.Dispose();
         }
     }
 
-    public void Dispose() => Stop();
+    // Used when a process is launched after Stop() has already been called.
+    private static void CancelAndDispose(RunningTool r)
+    {
+        try
+        {
+            r.GracefulCts.Cancel();
+            r.ForcefulCts.Cancel();
+            try { r.Task.GetAwaiter().GetResult(); } catch { }
+        }
+        finally
+        {
+            r.GracefulCts.Dispose();
+            r.ForcefulCts.Dispose();
+        }
+    }
 
     private sealed class RunningTool
     {
-        public RunningTool(CommandTask<CommandResult> task, CancellationTokenSource forcefulCts, CancellationTokenSource gracefulCts)
+        public RunningTool(
+            CommandTask<CommandResult> task,
+            CancellationTokenSource forcefulCts,
+            CancellationTokenSource gracefulCts)
         {
             Task = task;
             ForcefulCts = forcefulCts;
