@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <AssemblyName>Nefarius.Utilities.TorProxy.Sandbox</AssemblyName>
+    <RootNamespace>Nefarius.Utilities.TorProxy.Sandbox</RootNamespace>
+    <DelaySign>false</DelaySign>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\TorProxy\TorProxy.csproj" />
+  </ItemGroup>
+
+</Project>

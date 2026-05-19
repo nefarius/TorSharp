@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TorSharpStableVersion>4.0.0</TorSharpStableVersion>
+    <TorProxyStableVersion>5.0.0</TorProxyStableVersion>
 
     <BranchVersionLabel Condition="'$(BranchVersionLabel)' == '' and '$(GITHUB_HEAD_REF)' != ''">$(GITHUB_HEAD_REF)</BranchVersionLabel>
     <BranchVersionLabel Condition="'$(BranchVersionLabel)' == '' and '$(GITHUB_REF)' != ''">$(GITHUB_REF)</BranchVersionLabel>
@@ -20,8 +20,8 @@
 
     <BuildVersionLabel Condition="'$(BuildVersionLabel)' == '' and '$(GITHUB_RUN_NUMBER)' != ''">.$(GITHUB_RUN_NUMBER)</BuildVersionLabel>
 
-    <TorSharpVersion Condition="$(BUILD_STABLE_VERSION) == 'true'">$(TorSharpStableVersion)</TorSharpVersion>
-    <TorSharpVersion Condition="'$(TorSharpVersion)' == ''">$(TorSharpStableVersion)-$(BranchVersionLabel)$(BuildVersionLabel)</TorSharpVersion>
+    <TorProxyVersion Condition="$(BUILD_STABLE_VERSION) == 'true'">$(TorProxyStableVersion)</TorProxyVersion>
+    <TorProxyVersion Condition="'$(TorProxyVersion)' == ''">$(TorProxyStableVersion)-$(BranchVersionLabel)$(BuildVersionLabel)</TorProxyVersion>
   </PropertyGroup>
 
   <!-- Shared code quality settings for all projects -->
@@ -37,7 +37,7 @@
   <!-- Shared signing settings for all projects -->
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)TorSharp.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Nefarius.Utilities.TorProxy.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
 </Project>

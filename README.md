@@ -1,17 +1,22 @@
-# TorSharp
+# Nefarius.Utilities.TorProxy (fork of Knapcode.TorSharp)
+
+> **Fork notice.** `Nefarius.Utilities.TorProxy` is a maintained fork of
+> [`Knapcode.TorSharp`](https://github.com/joelverhagen/TorSharp) by
+> [Joel Verhagen](https://github.com/joelverhagen). All original copyright is preserved
+> (see [LICENSE](LICENSE)); the fork's modifications are © 2024-2026 Nefarius.
+> The upstream project remains the canonical reference. See
+> [CHANGELOG.md](CHANGELOG.md) for what changed in this fork.
 
 [![.NET](https://github.com/nefarius/TorSharp/actions/workflows/build.yml/badge.svg)](https://github.com/nefarius/TorSharp/actions/workflows/build.yml)
 ![.NET Standard 2.0](https://img.shields.io/badge/.NET-Standard%202.0-blue)
 ![.NET 8](https://img.shields.io/badge/.NET-8-blue)
 ![.NET 9](https://img.shields.io/badge/.NET-9-blue)
-[![NuGet Version](https://img.shields.io/nuget/v/Knapcode.TorSharp)](https://www.nuget.org/packages/Knapcode.TorSharp)
-[![NuGet downloads](https://img.shields.io/nuget/dt/Knapcode.TorSharp)](https://www.nuget.org/packages/Knapcode.TorSharp)
+[![NuGet Version](https://img.shields.io/nuget/v/Nefarius.Utilities.TorProxy)](https://www.nuget.org/packages/Nefarius.Utilities.TorProxy)
+[![NuGet downloads](https://img.shields.io/nuget/dt/Nefarius.Utilities.TorProxy)](https://www.nuget.org/packages/Nefarius.Utilities.TorProxy)
 
 Use Tor for your C# HTTP clients. Use Privoxy or .NET 6+ SOCKS support to proxy HTTP traffic.
 
 All you need is client code that can use a simple HTTP proxy.
-
-> *This is a fork of the excellent [TorSharp](https://github.com/joelverhagen/TorSharp) project by [Joel Verhagen](https://github.com/joelverhagen) and contributors.*
 
 ## Changes of this fork
 
@@ -19,9 +24,10 @@ All you need is client code that can use a simple HTTP proxy.
 - Switched process management to [CliWrap](https://github.com/Tyrrrz/CliWrap) and removed all hand-rolled PInvoke code (`Desktop`, `Job`, `Process`, `FileStreamEventEmitter`, `SafeDesktopHandle`, `SafeJobHandle`)
 - Dropped `ToolRunnerType` enum and `VirtualDesktopName` setting — single built-in runner for all platforms
 - Modernized targets: `netstandard2.0`, `net8.0`, `net9.0`; dropped .NET Framework targets (use v2.x for Framework 4.6.2/4.7.2)
-- Hardened HTTP discovery: shared `TorSharp/{version}` User-Agent, 3× retry with exponential back-off, per-request discovery timeout
+- Hardened HTTP discovery: shared `Nefarius.Utilities.TorProxy/{version}` User-Agent, 3× retry with exponential back-off, per-request discovery timeout
 - Fixed TAR extraction on non-seekable streams using BCL `TarReader` on .NET 7+
 - Added Alpine Docker sample and dropped broken Privoxy upstream sources (`privoxy.org` RSS, SourceForge RSS)
+- Rebranded from `Knapcode.TorSharp` to `Nefarius.Utilities.TorProxy` (v5+)
 
 ## Notice
 
@@ -48,8 +54,27 @@ This product is produced independently from the Tor® anonymity software and car
 ## Install
 
 ```
-dotnet add package Knapcode.TorSharp
+dotnet add package Nefarius.Utilities.TorProxy
 ```
+
+## Migrating from Knapcode.TorSharp
+
+If you were using `Knapcode.TorSharp`, here is the migration table:
+
+| Old (Knapcode.TorSharp) | New (Nefarius.Utilities.TorProxy) |
+|---|---|
+| `using Knapcode.TorSharp;` | `using Nefarius.Utilities.TorProxy;` |
+| `TorSharpProxy` | `TorProxy` |
+| `ITorSharpProxy` | `ITorProxy` |
+| `TorSharpProxyExtensions` | `TorProxyExtensions` |
+| `TorSharpSettings` | `TorProxySettings` |
+| `TorSharpToolFetcher` | `TorProxyToolFetcher` |
+| `ITorSharpToolFetcher` | `ITorProxyToolFetcher` |
+| `TorSharpPrivoxySettings` | `TorProxyPrivoxySettings` |
+| `TorSharpTorSettings` | `TorProxyTorSettings` |
+| `TorSharpException` | `TorProxyException` |
+| `TorSharpArchitecture` | `TorProxyArchitecture` |
+| `TorSharpOSPlatform` | `TorProxyOSPlatform` |
 
 ## Example using .NET 6+ SOCKS support
 
@@ -58,7 +83,7 @@ Starting on .NET 6, there is built-in support for SOCKS proxies. This means you 
 See [`samples/NativeSocksProxy/Program.cs`](https://github.com/nefarius/TorSharp/tree/master/samples/NativeSocksProxy/Program.cs) for a working sample.
 
 ```csharp
-var settings = new TorSharpSettings
+var settings = new TorProxySettings
 {
     PrivoxySettings = { Disable = true }
 };
@@ -66,12 +91,12 @@ var settings = new TorSharpSettings
 // download Tor
 using (var httpClient = new HttpClient())
 {
-    var fetcher = new TorSharpToolFetcher(settings, httpClient);
+    var fetcher = new TorProxyToolFetcher(settings, httpClient);
     await fetcher.FetchAsync();
 }
 
 // execute
-using (var proxy = new TorSharpProxy(settings))
+using (var proxy = new TorProxy(settings))
 {
     await proxy.ConfigureAndStartAsync();
 
@@ -96,11 +121,11 @@ using (var proxy = new TorSharpProxy(settings))
 
 ## Example using Privoxy
 
-See [`samples/TorSharp.Sandbox/Program.cs`](https://github.com/nefarius/TorSharp/tree/master/samples/TorSharp.Sandbox/Program.cs) for a working sample.
+See [`samples/TorProxy.Sandbox/Program.cs`](https://github.com/nefarius/TorSharp/tree/master/samples/TorProxy.Sandbox/Program.cs) for a working sample.
 
 ```csharp
 // configure
-var settings = new TorSharpSettings
+var settings = new TorProxySettings
 {
    ZippedToolsDirectory = Path.Combine(Path.GetTempPath(), "TorZipped"),
    ExtractedToolsDirectory = Path.Combine(Path.GetTempPath(), "TorExtracted"),
@@ -114,10 +139,10 @@ var settings = new TorSharpSettings
 };
 
 // download tools
-await new TorSharpToolFetcher(settings, new HttpClient()).FetchAsync();
+await new TorProxyToolFetcher(settings, new HttpClient()).FetchAsync();
 
 // execute
-var proxy = new TorSharpProxy(settings);
+var proxy = new TorProxy(settings);
 var handler = new HttpClientHandler
 {
     Proxy = new WebProxy(new Uri("http://localhost:" + settings.PrivoxySettings.Port))
@@ -134,7 +159,7 @@ proxy.Stop();
 
 ### The tool fetcher is throwing an exception. What do I do?
 
-By default `TorSharpToolFetcher` tries to download binaries from the
+By default `TorProxyToolFetcher` tries to download binaries from the
 [TorSharp.Mirror](https://github.com/nefarius/TorSharp.Mirror) first (a long-term binary
 cache with SHA256 verification), then falls back to the original upstream sites.  If an
 exception still occurs, here are the next steps:
@@ -145,18 +170,18 @@ exception still occurs, here are the next steps:
 
 1. **Opt out of the mirror** and use upstream discovery directly:
    ```csharp
-   var settings = new TorSharpSettings { UseMirror = false };
+   var settings = new TorProxySettings { UseMirror = false };
    ```
 
 1. [Open an issue](https://github.com/nefarius/TorSharp/issues/new) so we can look into it.
 
-1. Work around the issue by setting up the tools manually and not using `TorSharpToolFetcher`. [See below](#how-do-i-set-up-the-tools-manually).
+1. Work around the issue by setting up the tools manually and not using `TorProxyToolFetcher`. [See below](#how-do-i-set-up-the-tools-manually).
 
-1. Investigate the issue yourself. The [TorSharp.Sandbox](https://github.com/nefarius/TorSharp/blob/master/samples/TorSharp.Sandbox/Program.cs) project is helpful for this. Pull requests accepted 🏆.
+1. Investigate the issue yourself. The [TorProxy.Sandbox](https://github.com/nefarius/TorSharp/blob/master/samples/TorProxy.Sandbox/Program.cs) project is helpful for this. Pull requests accepted 🏆.
 
 ### How do I set up the tools manually?
 
-If you don't want to use the `TorSharpToolFetcher` to download the latest version of the tools for you or if you want to use a specific version of Tor and Privoxy, follow these steps.
+If you don't want to use the `TorProxyToolFetcher` to download the latest version of the tools for you or if you want to use a specific version of Tor and Privoxy, follow these steps.
 
 1. Make a directory that will hold the zipped Tor and Privoxy binaries.
 1. Put a Tor Win32 ZIP in that folder with the file name like: `tor-win32-{version}.zip`
@@ -167,8 +192,8 @@ If you don't want to use the `TorSharpToolFetcher` to download the latest versio
    - Again, `{version}` must be parsable as a `System.Version`.
    - Example: `privoxy-win32-3.0.26.zip`
    - The ZIP is expected to have `privoxy.exe`.
-1. Initialize a `TorSharpSettings` instance where `ZippedToolsDirectory` is the directory created above.
-1. Pass this settings instance to the `TorSharpProxy` constructor.
+1. Initialize a `TorProxySettings` instance where `ZippedToolsDirectory` is the directory created above.
+1. Pass this settings instance to the `TorProxy` constructor.
 
 ### Can I run multiple instances in parallel?
 
@@ -177,31 +202,31 @@ Yes, you can. See this sample: [`samples/MultipleInstances/Program.cs`](https://
 However, you need to adhere to the following guidance.
 
 None of the types in this library should be considered thread safe. Use separate instances for each parallel task/thread.
-- `TorSharpProxy`: this is stateful and should not be shared.
-- `TorSharpSettings`: the values held in the settings class need to be different for parallel threads, so it doesn't make sense to share instances.
-- `TorSharpToolFetcher`: this is stateless so it may be safe, but I would keep this a singleton since you shouldn't have multiple copies of the zipped tools (just multiple copies of the *extracted tools*).
+- `TorProxy`: this is stateful and should not be shared.
+- `TorProxySettings`: the values held in the settings class need to be different for parallel threads, so it doesn't make sense to share instances.
+- `TorProxyToolFetcher`: this is stateless so it may be safe, but I would keep this a singleton since you shouldn't have multiple copies of the zipped tools (just multiple copies of the *extracted tools*).
 
 Parallel threads must have different values for these settings. The defaults will not work.
 
 - **Must be made unique by you:**
-  - `TorSharpSettings.ExtractedToolsDirectory`: this is the parent directory of the tool working directories. Specify a different value for each thread. In the sample above, I see each parallel task to be a sibling directory, e.g. `{some_root}/a`, `{some_root}/b`, etc.
-  - `TorSharpSettings.PrivoxySettings.Port`: this is the Privoxy listen port. Each Privoxy process needs its own port. Can be ignored if `TorSharpSettings.PrivoxySettings.Disable` is `true`.
-  - `TorSharpSettings.TorSettings.SocksPort`: this is the Tor SOCKS listen port. Each Tor process needs its own port.
+  - `TorProxySettings.ExtractedToolsDirectory`: this is the parent directory of the tool working directories. Specify a different value for each thread. In the sample above, I see each parallel task to be a sibling directory, e.g. `{some_root}/a`, `{some_root}/b`, etc.
+  - `TorProxySettings.PrivoxySettings.Port`: this is the Privoxy listen port. Each Privoxy process needs its own port. Can be ignored if `TorProxySettings.PrivoxySettings.Disable` is `true`.
+  - `TorProxySettings.TorSettings.SocksPort`: this is the Tor SOCKS listen port. Each Tor process needs its own port.
 - **Must be unique, but only if you set them:**
-  - `TorSharpSettings.TorSettings.ControlPort`: this is the Tor SOCKS listen port. Each Tor process needs its own port.
-  - `TorSharpSettings.TorSettings.AdditionalSockPorts`: if used, it must have unique values.
-  - `TorSharpSettings.TorSettings.HttpTunnelPort`: if used, it must have a unique value.
-  - `TorSharpSettings.TorSettings.DataDirectory`: the default is based `ExtractedToolsDirectory`, but if you manually set it, it must be unique.
+  - `TorProxySettings.TorSettings.ControlPort`: this is the Tor SOCKS listen port. Each Tor process needs its own port.
+  - `TorProxySettings.TorSettings.AdditionalSockPorts`: if used, it must have unique values.
+  - `TorProxySettings.TorSettings.HttpTunnelPort`: if used, it must have a unique value.
+  - `TorProxySettings.TorSettings.DataDirectory`: the default is based `ExtractedToolsDirectory`, but if you manually set it, it must be unique.
 
-In general, directory configuration values must be different from all of the other directories, except `TorSharpSettings.ZippedToolsDirectory` which should not be downloaded to in parallel by `TorSharpToolFetcher` but can be read from in parallel with multiple `TorSharpProxy` instances. Port configuration values need to all be unique.
+In general, directory configuration values must be different from all of the other directories, except `TorProxySettings.ZippedToolsDirectory` which should not be downloaded to in parallel by `TorProxyToolFetcher` but can be read from in parallel with multiple `TorProxy` instances. Port configuration values need to all be unique.
 
-### How do I change what TorSharp logs?
+### How do I change what TorProxy logs?
 
-By default, TorSharp lets the tools (Tor, Privoxy) log to the main process stdout and stderr. If you want to disable this behavior, set `TorSharpSettings.WriteToConsole` to `false`. If you want to intercept the output from the tools, attach to the `TorSharpProxy.OutputDataReceived` (for stdout) and `TorSharpProxy.ErrorDataReceived` (for stderr) events. In your event handler, you can log to some external sink or enqueue the line for processing. The event handlers are fired from a task using the default task scheduler so this blocks one of the shared worker threads. Don't do too much heavy lifting there, I guess! If you want to know which tool sent the log message, look at the `DataEventArgs.ExecutablePath` property.
+By default, TorProxy lets the tools (Tor, Privoxy) log to the main process stdout and stderr. If you want to disable this behavior, set `TorProxySettings.WriteToConsole` to `false`. If you want to intercept the output from the tools, attach to the `TorProxy.OutputDataReceived` (for stdout) and `TorProxy.ErrorDataReceived` (for stderr) events. In your event handler, you can log to some external sink or enqueue the line for processing. The event handlers are fired from a task using the default task scheduler so this blocks one of the shared worker threads. Don't do too much heavy lifting there, I guess! If you want to know which tool sent the log message, look at the `DataEventArgs.ExecutablePath` property.
 
 For a full sample, see this: [`samples/CustomLogging/Program.cs`](https://github.com/nefarius/TorSharp/blob/master/samples/CustomLogging/Program.cs).
 
-### Privoxy fetched by TorSharp fails to start? Try installing missing dependencies.
+### Privoxy fetched by TorProxy fails to start? Try installing missing dependencies.
 
 It's possible some expected shared libraries aren't there. Try to look at the error message and judge which library needs to be installed from your distro's package repository.
 
@@ -246,11 +271,11 @@ I have the checksum verification in there because these pages have SSL problems 
 [joel@debian10]$ sudo apt-get install -y libbrotli1 libmbedtls-dev
 ```
 
-### Privoxy fetched by TorSharp fails to start? Try `ExecutablePathOverride`.
+### Privoxy fetched by TorProxy fails to start? Try `ExecutablePathOverride`.
 
 On Linux, the Privoxy binaries fetched seem to be built for the latest Debian and Ubuntu distributions. I can confirm that some other distributions don't work.
 
-I'm no Linux expert but my guess is that there are missing shared libraries that are different on the running platform than the Debian platform that Privoxy was compiled for. The easiest workaround is to install Privoxy to your system and set the `TorSharpSettings.PrivoxySetting.ExecutablePathOverride` configuration setting to `"privoxy"` (i.e. use Privoxy from PATH).
+I'm no Linux expert but my guess is that there are missing shared libraries that are different on the running platform than the Debian platform that Privoxy was compiled for. The easiest workaround is to install Privoxy to your system and set the `TorProxySettings.PrivoxySettings.ExecutablePathOverride` configuration setting to `"privoxy"` (i.e. use Privoxy from PATH).
 
 After you install it, make sure `privoxy` is in the PATH.
 
@@ -259,10 +284,10 @@ After you install it, make sure `privoxy` is in the PATH.
 /usr/sbin/privoxy
 ```
 
-After this is done, just configure TorSharp to use the system Privoxy with the `ExecutablePathOverride` setting:
+After this is done, just configure TorProxy to use the system Privoxy with the `ExecutablePathOverride` setting:
 
 ```csharp
-var settings = new TorSharpSettings();
+var settings = new TorProxySettings();
 settings.PrivoxySettings.ExecutablePathOverride = "privoxy";
 ```
 
@@ -304,9 +329,9 @@ Note that you may encounter warning or error messages in the output due to new c
 
 ## Mirror
 
-`TorSharpToolFetcher` uses a **long-term binary cache** at
+`TorProxyToolFetcher` uses a **long-term binary cache** at
 [github.com/nefarius/TorSharp.Mirror](https://github.com/nefarius/TorSharp.Mirror) by
-default (`TorSharpSettings.UseMirror = true`).
+default (`TorProxySettings.UseMirror = true`).
 
 ### How it works
 
@@ -327,7 +352,7 @@ run.
 ### Opt out
 
 ```csharp
-var settings = new TorSharpSettings { UseMirror = false };
+var settings = new TorProxySettings { UseMirror = false };
 ```
 
 ### Self-host
@@ -336,7 +361,7 @@ Point the fetcher at your own mirror by serving a compatible `manifest.json` at 
 HTTPS URL:
 
 ```csharp
-var settings = new TorSharpSettings
+var settings = new TorProxySettings
 {
     MirrorManifestUrl = "https://my-internal-mirror.example.com/torsharp/manifest.json"
 };

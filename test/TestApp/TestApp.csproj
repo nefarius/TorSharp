@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TorSharp.Tests\TorSharp.Tests.csproj" />
+    <ProjectReference Include="..\TorProxy.Tests\TorProxy.Tests.csproj" />
   </ItemGroup>
 
 </Project>

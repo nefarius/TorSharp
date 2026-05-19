@@ -3,11 +3,11 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net9.0</TargetFramework>
-    <RootNamespace>Knapcode.TorSharp.Docker</RootNamespace>
+    <RootNamespace>Nefarius.Utilities.TorProxy.Docker</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\TorSharp\TorSharp.csproj" />
+    <ProjectReference Include="..\..\src\TorProxy\TorProxy.csproj" />
   </ItemGroup>
 
 </Project>

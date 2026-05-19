@@ -1,9 +1,9 @@
 ﻿using System.Collections.Concurrent;
 using System.Net;
-using Knapcode.TorSharp;
-using Knapcode.TorSharp.Tools;
+using Nefarius.Utilities.TorProxy;
+using Nefarius.Utilities.TorProxy.Tools;
 
-var settings = new TorSharpSettings
+var settings = new TorProxySettings
 {
     // Disable writing the tool output to this process stdout/stderr.
     WriteToConsole = false,
@@ -12,7 +12,7 @@ var settings = new TorSharpSettings
 // download the tools
 using (var httpClient = new HttpClient())
 {
-    var fetcher = new TorSharpToolFetcher(settings, httpClient);
+    var fetcher = new TorProxyToolFetcher(settings, httpClient);
     Console.WriteLine("Fetching tools...");
     await fetcher.FetchAsync();
 }
@@ -21,7 +21,7 @@ ConcurrentQueue<string> torOutput = new ConcurrentQueue<string>();
 ConcurrentQueue<string> privoxyOutput = new ConcurrentQueue<string>();
 
 // execute
-using (var proxy = new TorSharpProxy(settings))
+using (var proxy = new TorProxy(settings))
 {
     EventHandler<DataEventArgs> loggingHandler = (sender, args) =>
     {
