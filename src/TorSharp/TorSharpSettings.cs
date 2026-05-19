@@ -15,6 +15,9 @@ public class TorSharpSettings
 
     private ToolRunnerType? _toolRunnerType;
 
+    public const string DefaultMirrorManifestUrl =
+        "https://github.com/nefarius/TorSharp.Mirror/releases/latest/download/manifest.json";
+
     public TorSharpSettings()
     {
         ReloadTools = false;
@@ -22,6 +25,8 @@ public class TorSharpSettings
         ZippedToolsDirectory = Path.Combine(DefaultToolsDirectory, "ZippedTools");
         ExtractedToolsDirectory = Path.Combine(DefaultToolsDirectory, "ExtractedTools");
         WaitForConnect = TimeSpan.FromSeconds(5);
+        UseMirror = true;
+        MirrorManifestUrl = DefaultMirrorManifestUrl;
 
         if (RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
         {
@@ -121,6 +126,22 @@ public class TorSharpSettings
     /// multiple URLs or feeds that a checked for a single tool.
     /// </summary>
     public ToolDownloadStrategy ToolDownloadStrategy { get; set; }
+
+    /// <summary>
+    /// When <c>true</c> (the default), <see cref="TorSharpToolFetcher"/> first tries to resolve tool
+    /// versions and download binaries from the mirror specified by <see cref="MirrorManifestUrl"/>.
+    /// If the mirror is unreachable or does not contain an entry for the current platform, the fetcher
+    /// falls back to the normal upstream discovery logic. Set to <c>false</c> to skip the mirror entirely.
+    /// </summary>
+    public bool UseMirror { get; set; }
+
+    /// <summary>
+    /// URL of the mirror manifest JSON. Defaults to the official TorSharp.Mirror at
+    /// <c>https://github.com/nefarius/TorSharp.Mirror/releases/latest/download/manifest.json</c>.
+    /// Override this to point at a self-hosted mirror that serves a compatible manifest.
+    /// Ignored when <see cref="UseMirror"/> is <c>false</c>.
+    /// </summary>
+    public string? MirrorManifestUrl { get; set; }
 
     /// <summary>
     /// The operating system that TorSharp should assume it is running on. Automatically detected via

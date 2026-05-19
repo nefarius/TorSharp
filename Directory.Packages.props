@@ -9,6 +9,7 @@
     <PackageVersion Include="ConfigureAwaitChecker.Analyzer" Version="5.0.0.1" />
     <PackageVersion Include="SharpCompress" Version="0.48.1" />
     <PackageVersion Include="System.ServiceModel.Syndication" Version="9.0.5" />
+    <PackageVersion Include="System.Text.Json" Version="9.0.5" />
   </ItemGroup>
 
   <!-- Test dependencies -->

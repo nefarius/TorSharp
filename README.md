@@ -118,9 +118,21 @@ proxy.Stop();
 
 ### The tool fetcher is throwing an exception. What do I do?
 
-This most likely is happening because the URLs where we fetch Tor or Privoxy from are down or have changed. I would recommend:
+By default `TorSharpToolFetcher` tries to download binaries from the
+[TorSharp.Mirror](https://github.com/nefarius/TorSharp.Mirror) first (a long-term binary
+cache with SHA256 verification), then falls back to the original upstream sites.  If an
+exception still occurs, here are the next steps:
 
-1. [Open an issue](https://github.com/joelverhagen/TorSharp/issues/new) so I can look into it.
+1. **Check the mirror.** Visit
+   [github.com/nefarius/TorSharp.Mirror/releases](https://github.com/nefarius/TorSharp.Mirror/releases)
+   to see when the mirror was last refreshed.
+
+1. **Opt out of the mirror** and use upstream discovery directly:
+   ```csharp
+   var settings = new TorSharpSettings { UseMirror = false };
+   ```
+
+1. [Open an issue](https://github.com/joelverhagen/TorSharp/issues/new) so we can look into it.
 
 1. Work around the issue by setting up the tools manually and not using `TorSharpToolFetcher`. [See below](#how-do-i-set-up-the-tools-manually).
 
@@ -274,3 +286,45 @@ Note that you may encounter warning or error messages in the output due to new c
 ```console
 [joel@debian9]$ sudo apt-get install privoxy -y
 ```
+
+## Mirror
+
+`TorSharpToolFetcher` uses a **long-term binary cache** at
+[github.com/nefarius/TorSharp.Mirror](https://github.com/nefarius/TorSharp.Mirror) by
+default (`TorSharpSettings.UseMirror = true`).
+
+### How it works
+
+1. The fetcher downloads
+   `https://github.com/nefarius/TorSharp.Mirror/releases/latest/download/manifest.json`
+   which lists the latest cached version of each binary with its SHA256 digest.
+2. The matching binary is downloaded directly from the GitHub Release asset.
+3. After download, the SHA256 is verified against the manifest value.
+4. If the mirror is unreachable or does not contain an entry for the current platform,
+   the fetcher automatically falls back to the original upstream discovery logic.
+
+### Refresh cadence
+
+The mirror workflow runs **nightly** and publishes a new dated GitHub Release
+(`mirror-YYYY.MM.DD`).  The `releases/latest` redirect always points to the most recent
+run.
+
+### Opt out
+
+```csharp
+var settings = new TorSharpSettings { UseMirror = false };
+```
+
+### Self-host
+
+Point the fetcher at your own mirror by serving a compatible `manifest.json` at a stable
+HTTPS URL:
+
+```csharp
+var settings = new TorSharpSettings
+{
+    MirrorManifestUrl = "https://my-internal-mirror.example.com/torsharp/manifest.json"
+};
+```
+
+The manifest schema is published with every mirror release as `manifest.schema.json`.

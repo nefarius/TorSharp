@@ -5,6 +5,11 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
+  schedule:
+    # Weekly upstream-only test run (Tuesdays at 04:00 UTC) to detect when
+    # Tor/Privoxy upstream distribution sites change their format or become
+    # unavailable.  Results are visible in the Actions tab.
+    - cron: "0 4 * * 2"
   workflow_dispatch:
     inputs:
       build_stable_version:
@@ -33,16 +38,30 @@ jobs:
 
     env:
       TORSHARP_TEST_CACHE: ${{ github.workspace }}/tests/cache
+      # Set only on the scheduled upstream-health run so the fetcher tests
+      # exercise the upstream scrapers directly instead of the mirror.
+      TORSHARP_RUN_UPSTREAM_TESTS: ${{ github.event_name == 'schedule' && 'true' || '' }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Compute cache month token
+        id: cache-month
+        shell: bash
+        run: echo "month=$(date -u +%Y%m)" >> "$GITHUB_OUTPUT"
+
       - name: Cache test downloads
         uses: actions/cache@v4
         with:
           path: tests/cache
-          key: ${{ matrix.os }}-torsharp-test
+          # Monthly bucket: same key for the whole calendar month so hot runs
+          # reuse cached binaries.  restore-keys falls back to any prior month
+          # so the first run of a new month still benefits from old downloads.
+          key: ${{ matrix.os }}-torsharp-test-${{ hashFiles('.github/workflows/build.yml') }}-${{ steps.cache-month.outputs.month }}
+          restore-keys: |
+            ${{ matrix.os }}-torsharp-test-${{ hashFiles('.github/workflows/build.yml') }}-
+            ${{ matrix.os }}-torsharp-test-
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -56,11 +75,38 @@ jobs:
       - name: Build
         run: dotnet build TorSharp.sln --configuration Release --no-restore
 
-      - name: Install Privoxy dependencies (Linux)
+      - name: Install Privoxy runtime dependencies (Linux)
         if: runner.os == 'Linux'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libbrotli1 libmbedtls14
+          MANIFEST_URL="https://github.com/nefarius/TorSharp.Mirror/releases/latest/download/manifest.json"
+          # Fetch manifest; emit a visible warning (not a silent swallow) on failure.
+          MANIFEST_JSON=""
+          if ! MANIFEST_JSON=$(curl -fsSL --connect-timeout 15 "$MANIFEST_URL"); then
+            echo "::warning::Could not fetch mirror manifest from $MANIFEST_URL — will use fallback deps" >&2
+          fi
+          # Parse runtimeDeps from the manifest; warn and leave DEPS empty on any error.
+          DEPS=""
+          if [ -n "$MANIFEST_JSON" ]; then
+            DEPS=$(MANIFEST_JSON="$MANIFEST_JSON" python3 - <<'PYEOF'
+          import json, os, sys
+          try:
+              m = json.loads(os.environ["MANIFEST_JSON"])
+              deps = m.get("privoxy", {}).get("linux-amd64", {}).get("runtimeDeps", [])
+              print(" ".join(deps))
+          except Exception as exc:
+              print(f"::warning::Could not parse manifest runtimeDeps: {exc}", file=sys.stderr)
+          PYEOF
+            )
+          fi
+          if [ -z "$DEPS" ]; then
+            echo "::warning::Using built-in fallback Privoxy deps (mirror runtimeDeps unavailable)" >&2
+            # Fallback: Debian bullseye/bookworm-era build deps
+            # (libmbedtls14 = mbedTLS 2.x, present on Ubuntu 22.04 and 24.04)
+            DEPS="libbrotli1 libmbedtls14"
+          fi
+          echo "Installing Privoxy runtime deps: $DEPS"
+          sudo apt-get update -q
+          sudo apt-get install -y $DEPS
 
       - name: Run sample
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_sample }}
