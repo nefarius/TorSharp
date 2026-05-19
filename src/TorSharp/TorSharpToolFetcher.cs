@@ -66,9 +66,17 @@ public class TorSharpToolFetcher : ITorSharpToolFetcher
     {
         EnableSecurityProtocols();
 
+        // Skip the network round-trip to the mirror when all required tools are
+        // already present locally and the caller has opted into reusing them.
+        var privoxyExists = _settings.PrivoxySettings.Disable
+            || ToolUtility.GetLatestToolOrNull(_settings, ToolUtility.GetPrivoxyToolSettings(_settings)) != null;
+        var torExists =
+            ToolUtility.GetLatestToolOrNull(_settings, ToolUtility.GetTorToolSettings(_settings)) != null;
+        var allToolsPresent = allowExistingTools && privoxyExists && torExists;
+
         // Try to fetch the mirror manifest once for both tools.
         MirrorManifest? mirrorManifest = null;
-        if (_settings.UseMirror && !string.IsNullOrWhiteSpace(_settings.MirrorManifestUrl))
+        if (!allToolsPresent && _settings.UseMirror && !string.IsNullOrWhiteSpace(_settings.MirrorManifestUrl))
         {
             mirrorManifest = await _mirrorFetcher.TryGetManifestAsync().ConfigureAwait(false);
         }
