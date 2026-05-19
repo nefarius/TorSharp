@@ -85,8 +85,9 @@ jobs:
               pass
           " 2>/dev/null || true)
           if [ -z "$DEPS" ]; then
-            # Fallback: deps for the Debian bookworm/trixie-era Privoxy builds
-            DEPS="libbrotli1 libmbedtls21"
+            # Fallback: deps for Debian bullseye/bookworm-era Privoxy builds
+            # (libmbedtls14 = mbedTLS 2.x, available on Ubuntu 22.04 and 24.04)
+            DEPS="libbrotli1 libmbedtls14"
           fi
           echo "Installing Privoxy runtime deps: $DEPS"
           sudo apt-get update -q
