@@ -15,7 +15,6 @@ namespace UnsharedNamespace
                 typeof(Knapcode.TorSharp.ITorSharpProxy),
                 typeof(Knapcode.TorSharp.ITorSharpToolFetcher),
                 typeof(Knapcode.TorSharp.ToolDownloadStrategy),
-                typeof(Knapcode.TorSharp.ToolRunnerType),
                 typeof(Knapcode.TorSharp.Tools.DataEventArgs),
                 typeof(Knapcode.TorSharp.Tools.DownloadableFile),
                 typeof(Knapcode.TorSharp.Tools.FileNamePatternAndFormat),

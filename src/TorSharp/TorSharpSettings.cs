@@ -13,8 +13,6 @@ public class TorSharpSettings
 {
     public static readonly string DefaultToolsDirectory = Path.Combine(Path.GetTempPath(), "Knapcode.TorSharp");
 
-    private ToolRunnerType? _toolRunnerType;
-
     public const string DefaultMirrorManifestUrl =
         "https://github.com/nefarius/TorSharp.Mirror/releases/latest/download/manifest.json";
 
@@ -82,29 +80,6 @@ public class TorSharpSettings
     public Func<TorSharpSettings, Uri, FileNamePatternAndFormat>? TorFilePatternResolver { get; set; }
 
     /// <summary>
-    /// The way in which tools should be run. The default is <see cref="ToolRunnerType.VirtualDesktop"/> on Windows
-    /// so that the Privoxy and Tor windows are not visible and <see cref="ToolRunnerType.Simple"/> for other
-    /// operating systems.
-    /// </summary>
-    public ToolRunnerType ToolRunnerType
-    {
-        get
-        {
-            if (_toolRunnerType == null)
-            {
-                return OSPlatform == TorSharpOSPlatform.Windows
-                    && Environment.OSVersion.Version >= new Version(6, 2)
-                    ? ToolRunnerType.VirtualDesktop
-                    : ToolRunnerType.Simple;
-            }
-
-            return _toolRunnerType.Value;
-        }
-
-        set => _toolRunnerType = value;
-    }
-
-    /// <summary>
     /// The directory to download the zipped tools. This defaults to <c>%TEMP%\Knapcode.TorSharp\ZippedTools</c>.
     /// </summary>
     public string ZippedToolsDirectory { get; set; }
@@ -161,14 +136,6 @@ public class TorSharpSettings
     /// setting this property to <see cref="TimeSpan.Zero"/>.
     /// </summary>
     public TimeSpan WaitForConnect { get; set; }
-
-    /// <summary>
-    /// When using the <see cref="ToolRunnerType"/> of <see cref="ToolRunnerType.VirtualDesktop"/>, this will be the
-    /// name of the Windows virtual desktop. It must not contain backslash ("\") characters. The name is case sensitive.
-    /// The name defaults to a "TorSharpDesktop-{hash of extracted tools directory}". It should not be shared with any
-    /// other parallel instances of <see cref="TorSharpProxy"/>.
-    /// </summary>
-    public string? VirtualDesktopName { get; set; }
 
     /// <summary>
     /// Write the output of the underlying tools (Tor, Privoxy) to this process's stdout and stderr. Defaults to true.

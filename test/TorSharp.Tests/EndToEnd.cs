@@ -33,16 +33,15 @@ namespace Knapcode.TorSharp.Tests
             _output = output;
         }
 
-        [PlatformFact(osPlatform: nameof(TorSharpOSPlatform.Windows))]
+        [RetryFact]
         [DisplayTestMethodName]
-        public async Task VirtualDesktopToolRunner_ConfigurationPathsWithSpaces()
+        public async Task ToolRunner_ConfigurationPathsWithSpaces()
         {
             using (var te = TestEnvironment.Initialize(_output))
             {
                 // Arrange
                 te.TestDirectory.Path = Path.Combine(te.TestDirectory, "Path With Spaces");
                 var settings = te.BuildSettings();
-                settings.ToolRunnerType = ToolRunnerType.VirtualDesktop;
 
                 // Act & Assert
                 await ExecuteEndToEndTestAsync(settings);
@@ -99,64 +98,16 @@ namespace Knapcode.TorSharp.Tests
 
         [RetryFact]
         [DisplayTestMethodName]
-        public async Task SimpleToolRunner_ConfigurationPathsWithSpaces()
-        {
-            using (var te = TestEnvironment.Initialize(_output))
-            {
-                // Arrange
-                te.TestDirectory.Path = Path.Combine(te.TestDirectory, "Path With Spaces");
-                var settings = te.BuildSettings();
-                settings.ToolRunnerType = ToolRunnerType.Simple;
-
-                // Act & Assert
-                await ExecuteEndToEndTestAsync(settings);
-            }
-        }
-
-        [PlatformFact(osPlatform: nameof(TorSharpOSPlatform.Windows))]
-        [DisplayTestMethodName]
-        public async Task VirtualDesktopToolRunner_CaptureOutput()
+        public async Task ToolRunner_CaptureOutput()
         {
             using (var te = TestEnvironment.Initialize(_output))
             {
                 // Arrange
                 var settings = te.BuildSettings();
-                settings.ToolRunnerType = ToolRunnerType.VirtualDesktop;
-                settings.WriteToConsole = false;
-
-                // Arrange
-                await ExecuteCapturedOutputTestAsync(settings);
-            }
-        }
-
-        [RetryFact]
-        [DisplayTestMethodName]
-        public async Task SimpleToolRunner_CaptureOutput()
-        {
-            using (var te = TestEnvironment.Initialize(_output))
-            {
-                // Arrange
-                var settings = te.BuildSettings();
-                settings.ToolRunnerType = ToolRunnerType.Simple;
                 settings.WriteToConsole = false;
 
                 // Act & Assert
                 await ExecuteCapturedOutputTestAsync(settings);
-            }
-        }
-
-        [PlatformFact(osPlatform: nameof(TorSharpOSPlatform.Windows))]
-        [DisplayTestMethodName]
-        public async Task VirtualDesktopToolRunner_EndToEnd()
-        {
-            using (var te = TestEnvironment.Initialize(_output))
-            {
-                // Arrange
-                var settings = te.BuildSettings();
-                settings.ToolRunnerType = ToolRunnerType.VirtualDesktop;
-
-                // Act & Assert
-                await ExecuteEndToEndTestAsync(settings);
             }
         }
 
@@ -178,51 +129,21 @@ namespace Knapcode.TorSharp.Tests
 
         [RetryFact]
         [DisplayTestMethodName]
-        public async Task SimpleToolRunner_EndToEnd()
+        public async Task ToolRunner_EndToEnd()
         {
             using (var te = TestEnvironment.Initialize(_output))
             {
                 // Arrange
                 var settings = te.BuildSettings();
-                settings.ToolRunnerType = ToolRunnerType.Simple;
 
                 // Act & Assert
                 await ExecuteEndToEndTestAsync(settings);
             }
         }
 
-        [PlatformFact(osPlatform: nameof(TorSharpOSPlatform.Windows))]
-        [DisplayTestMethodName]
-        public async Task VirtualDesktopToolRunner_EndToEnd_Parallel()
-        {
-            using (var te1 = TestEnvironment.Initialize(_output))
-            using (var te2 = TestEnvironment.Initialize(_output))
-            using (var te3 = TestEnvironment.Initialize(_output))
-            {
-                // Arrange
-                var settings1 = te1.BuildSettings();
-                var settings2 = te2.BuildSettings();
-                var settings3 = te3.BuildSettings();
-                settings1.ToolRunnerType = ToolRunnerType.VirtualDesktop;
-                settings2.ToolRunnerType = ToolRunnerType.VirtualDesktop;
-                settings3.ToolRunnerType = ToolRunnerType.VirtualDesktop;
-                var barrier = new Barrier(3);
-
-                // Act & Assert
-                var tasks = new[]
-                {
-                    ExecuteEndToEndTestAsync(settings1, barrier),
-                    ExecuteEndToEndTestAsync(settings2, barrier),
-                    ExecuteEndToEndTestAsync(settings3, barrier),
-                };
-                await Task.WhenAny(tasks); // fail fast
-                await Task.WhenAll(tasks);
-            }
-        }
-
         [RetryFact]
         [DisplayTestMethodName]
-        public async Task SimpleToolRunner_EndToEnd_Parallel()
+        public async Task ToolRunner_EndToEnd_Parallel()
         {
             using (var te1 = TestEnvironment.Initialize(_output))
             using (var te2 = TestEnvironment.Initialize(_output))
@@ -232,9 +153,6 @@ namespace Knapcode.TorSharp.Tests
                 var settings1 = te1.BuildSettings();
                 var settings2 = te2.BuildSettings();
                 var settings3 = te3.BuildSettings();
-                settings1.ToolRunnerType = ToolRunnerType.Simple;
-                settings2.ToolRunnerType = ToolRunnerType.Simple;
-                settings3.ToolRunnerType = ToolRunnerType.Simple;
                 var barrier = new Barrier(3);
 
                 // Act & Assert
@@ -257,7 +175,6 @@ namespace Knapcode.TorSharp.Tests
             {
                 // Arrange
                 var settings = te.BuildSettings();
-                settings.ToolRunnerType = ToolRunnerType.Simple;
 
                 using (var httpClient = new HttpClient())
                 using (var proxy = new TorSharpProxy(settings))
@@ -364,7 +281,6 @@ namespace Knapcode.TorSharp.Tests
                 settings.TorSettings.HttpsProxyPort = proxyPort.Port;
                 settings.TorSettings.HttpsProxyUsername = proxyUsername;
                 settings.TorSettings.HttpsProxyPassword = proxyPassword;
-                settings.ToolRunnerType = ToolRunnerType.Simple;
 
                 // Act & Assert
                 await ExecuteEndToEndTestAsync(settings);

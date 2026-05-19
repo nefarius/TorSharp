@@ -32,29 +32,17 @@ namespace Knapcode.TorSharp.Tests
         private string ExtractedDir { get; }
         private string ProjectDir { get; }
 
-        [PlatformTheory(osPlatform: nameof(TorSharpOSPlatform.Windows))]
-        [InlineData(false, "net8.0")]
-        [InlineData(true, "net8.0")]
-        [InlineData(false, "net9.0")]
-        [InlineData(true, "net9.0")]
-        [DisplayTestMethodName]
-        public void VirtualDesktopToolRunner_OnlyWritesToStdoutIfSpecified(bool writeToConsole, string framework)
-        {
-            Execute(writeToConsole, ToolRunnerType.VirtualDesktop, framework);
-        }
-
         [RetryTheory]
         [InlineData(false, "net9.0")]
         [InlineData(true, "net9.0")]
         [DisplayTestMethodName]
-        public void SimpleToolRuner_OnlyWritesToStdoutIfSpecified(bool writeToConsole, string framework)
+        public void ToolRunner_OnlyWritesToStdoutIfSpecified(bool writeToConsole, string framework)
         {
-            Execute(writeToConsole, ToolRunnerType.Simple, framework);
+            Execute(writeToConsole, framework);
         }
 
-        private void Execute(bool writeToConsole, ToolRunnerType toolRunnerType, string framework)
+        private void Execute(bool writeToConsole, string framework)
         {
-
             // build the test app
             ExecuteDotnet(
                 new[]
@@ -81,7 +69,6 @@ namespace Knapcode.TorSharp.Tests
                     "--no-restore", "--no-build",
                     "--",
                     writeToConsole.ToString(),
-                    toolRunnerType.ToString(),
                     "\"" + ZippedDir + "\"",
                     "\"" + ExtractedDir + "\"",
                 },
