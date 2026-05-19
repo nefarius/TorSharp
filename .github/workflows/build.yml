@@ -38,10 +38,10 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     env:
-      TORSHARP_TEST_CACHE: ${{ github.workspace }}/tests/cache
+      TORPROXY_TEST_CACHE: ${{ github.workspace }}/tests/cache
       # Set only on the scheduled upstream-health run so the fetcher tests
       # exercise the upstream scrapers directly instead of the mirror.
-      TORSHARP_RUN_UPSTREAM_TESTS: ${{ github.event_name == 'schedule' && 'true' || '' }}
+      TORPROXY_RUN_UPSTREAM_TESTS: ${{ github.event_name == 'schedule' && 'true' || '' }}
 
     steps:
       - name: Checkout
@@ -59,10 +59,10 @@ jobs:
           # Monthly bucket: same key for the whole calendar month so hot runs
           # reuse cached binaries.  restore-keys falls back to any prior month
           # so the first run of a new month still benefits from old downloads.
-          key: ${{ matrix.os }}-torsharp-test-${{ hashFiles('.github/workflows/build.yml') }}-${{ steps.cache-month.outputs.month }}
+          key: ${{ matrix.os }}-torproxy-test-${{ hashFiles('.github/workflows/build.yml') }}-${{ steps.cache-month.outputs.month }}
           restore-keys: |
-            ${{ matrix.os }}-torsharp-test-${{ hashFiles('.github/workflows/build.yml') }}-
-            ${{ matrix.os }}-torsharp-test-
+            ${{ matrix.os }}-torproxy-test-${{ hashFiles('.github/workflows/build.yml') }}-
+            ${{ matrix.os }}-torproxy-test-
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -71,10 +71,10 @@ jobs:
             9.0.x
 
       - name: Restore
-        run: dotnet restore TorSharp.sln
+        run: dotnet restore TorProxy.sln
 
       - name: Build
-        run: dotnet build TorSharp.sln --configuration Release --no-restore
+        run: dotnet build TorProxy.sln --configuration Release --no-restore
 
       - name: Install Privoxy runtime dependencies (Linux)
         if: runner.os == 'Linux'
@@ -113,21 +113,21 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_sample }}
         run: |
           date
-          dotnet run --project samples/TorSharp.Sandbox --framework net9.0
+          dotnet run --project samples/TorProxy.Sandbox --framework net9.0
 
       - name: Setup tmate session (Linux)
         if: ${{ runner.os == 'Linux' && github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
         uses: mxschmitt/action-tmate@v3
 
       - name: Test
-        run: dotnet test TorSharp.sln --configuration Release --no-restore --no-build --logger "console;verbosity=normal" --blame-hang-timeout 30m
+        run: dotnet test TorProxy.sln --configuration Release --no-restore --no-build --logger "console;verbosity=normal" --blame-hang-timeout 30m
 
       - name: Format
-        run: dotnet format TorSharp.sln --no-restore --verify-no-changes
+        run: dotnet format TorProxy.sln --no-restore --verify-no-changes
 
       - name: Pack
         if: matrix.os == 'windows-2025'
-        run: dotnet pack TorSharp.sln --configuration Release --no-restore --no-build
+        run: dotnet pack TorProxy.sln --configuration Release --no-restore --no-build
         env:
           BUILD_STABLE_VERSION: ${{ inputs.build_stable_version }}
 
@@ -137,7 +137,7 @@ jobs:
         with:
           name: packages
           path: |
-            artifacts/TorSharp/bin/Release/*.nupkg
+            artifacts/TorProxy/bin/Release/*.nupkg
 
   publish:
     needs: build

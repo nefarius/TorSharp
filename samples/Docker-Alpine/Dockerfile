@@ -1,11 +1,11 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
 WORKDIR /src/app
 
-RUN mkdir ../TorSharp
-COPY . ../TorSharp/
+RUN mkdir ../TorProxy
+COPY . ../TorProxy/
 
 RUN dotnet new console --framework net9.0
-RUN dotnet add reference ../TorSharp/src/TorSharp/TorSharp.csproj
+RUN dotnet add reference ../TorProxy/src/TorProxy/TorProxy.csproj
 
 COPY samples/Docker-Alpine/Program.cs .
 

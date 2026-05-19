@@ -1,11 +1,11 @@
 ﻿using System.Net;
-using Knapcode.TorSharp;
+using Nefarius.Utilities.TorProxy;
 
 // Share the same downloaded tools with all instances.
-var baseSettings = new TorSharpSettings();
+var baseSettings = new TorProxySettings();
 using (var httpClient = new HttpClient())
 {
-    var fetcher = new TorSharpToolFetcher(baseSettings, httpClient);
+    var fetcher = new TorProxyToolFetcher(baseSettings, httpClient);
     await fetcher.FetchAsync();
 }
 
@@ -19,9 +19,9 @@ var tasks = Enumerable
 await Task.WhenAny(tasks);
 await Task.WhenAll(tasks);
 
-async Task RunInstanceAsync(TorSharpSettings baseSettings, string name, int startingPort, Barrier barrier)
+async Task RunInstanceAsync(TorProxySettings baseSettings, string name, int startingPort, Barrier barrier)
 {
-    var settings = new TorSharpSettings
+    var settings = new TorProxySettings
     {
         // The extracted tools directory must not be shared.
         ExtractedToolsDirectory = Path.Combine(baseSettings.ExtractedToolsDirectory, name),
@@ -34,7 +34,7 @@ async Task RunInstanceAsync(TorSharpSettings baseSettings, string name, int star
         PrivoxySettings = { Port = startingPort + 2 },
     };
 
-    using (var proxy = new TorSharpProxy(settings))
+    using (var proxy = new TorProxy(settings))
     {
         await proxy.ConfigureAndStartAsync();
         var handler = new HttpClientHandler

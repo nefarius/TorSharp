@@ -1,6 +1,6 @@
 ﻿using System.Net;
-using Knapcode.TorSharp;
-using Knapcode.TorSharp.Tests.TestSupport;
+using Nefarius.Utilities.TorProxy;
+using Nefarius.Utilities.TorProxy.Tests.TestSupport;
 
 if (args.Length != 3)
 {
@@ -27,7 +27,7 @@ if (!bool.TryParse(args[0], out var writeToConsole))
 
 using var reservedPorts = ReservedPorts.Reserve(3);
 
-var settings = new TorSharpSettings
+var settings = new TorProxySettings
 {
     PrivoxySettings =
     {
@@ -45,11 +45,11 @@ var settings = new TorSharpSettings
 
 using (var httpClient = new HttpClient())
 {
-    var fetcher = new TorSharpToolFetcher(settings, httpClient);
+    var fetcher = new TorProxyToolFetcher(settings, httpClient);
     await fetcher.FetchAsync();
 }
 
-using (var proxy = new TorSharpProxy(settings))
+using (var proxy = new TorProxy(settings))
 {
     var handler = new HttpClientHandler
     {

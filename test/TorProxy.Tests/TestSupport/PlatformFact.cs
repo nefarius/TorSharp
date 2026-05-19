@@ -1,0 +1,24 @@
+﻿using xRetry;
+
+namespace Nefarius.Utilities.TorProxy.Tests.TestSupport
+{
+    public class PlatformFact : RetryFactAttribute
+    {
+        public PlatformFact(string? osPlatform = null, string? architecture = null)
+        {
+            var settings = new TorProxySettings();
+
+            var currentOSPlatform = settings.OSPlatform.ToString();
+            if (osPlatform != null && osPlatform != currentOSPlatform)
+            {
+                Skip = $"This test is not run on platform '{currentOSPlatform}'.";
+            }
+
+            var currentArchitecture = settings.Architecture.ToString();
+            if (architecture != null && architecture != currentArchitecture)
+            {
+                Skip = $"This test is not run on architecture '{currentArchitecture}'.";
+            }
+        }
+    }
+}

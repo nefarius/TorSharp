@@ -1,5 +1,13 @@
 # Changelog
 
+## 5.0.0
+* Forked and republished as `Nefarius.Utilities.TorProxy`. Original `Knapcode.TorSharp` copyright (© 2020 Joel Verhagen) preserved.
+* Package id changed: `Knapcode.TorSharp` → `Nefarius.Utilities.TorProxy`.
+* Assembly and root namespace changed: `Knapcode.TorSharp` → `Nefarius.Utilities.TorProxy`.
+* All public types renamed: `TorSharp*` → `TorProxy*` (e.g. `TorSharpProxy` → `TorProxy`, `TorSharpSettings` → `TorProxySettings`). See migration table in README.
+* Default tools cache directory changed: `%TEMP%\Knapcode.TorSharp` → `%TEMP%\Nefarius.Utilities.TorProxy`.
+* HTTP User-Agent changed: `TorSharp/{version}` → `Nefarius.Utilities.TorProxy/{version}`.
+
 ## 4.0.0
 * Switch process management to [CliWrap](https://github.com/Tyrrrz/CliWrap) (v3.10.1), removing all hand-rolled PInvoke code.
 * Drop `ToolRunnerType` enum and `TorSharpSettings.ToolRunnerType` — there is now a single built-in runner for all platforms.

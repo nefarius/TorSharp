@@ -6,13 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 
-namespace Knapcode.TorSharp.Sandbox
+namespace Nefarius.Utilities.TorProxy.Sandbox
 {
     internal class Program
     {
         private static async Task Main()
         {
-            var settings = new TorSharpSettings
+            var settings = new TorProxySettings
             {
                 ZippedToolsDirectory = Path.Combine(Path.GetTempPath(), "TorZipped"),
                 ExtractedToolsDirectory = Path.Combine(Path.GetTempPath(), "TorExtracted"),
@@ -30,7 +30,7 @@ namespace Knapcode.TorSharp.Sandbox
 
             using (var httpClient = new HttpClient())
             {
-                var fetcher = new TorSharpToolFetcher(settings, httpClient);
+                var fetcher = new TorProxyToolFetcher(settings, httpClient);
                 Console.WriteLine("Checking for updates...");
                 var updates = await fetcher.CheckForUpdatesAsync();
                 if (updates.HasUpdate)
@@ -40,8 +40,8 @@ namespace Knapcode.TorSharp.Sandbox
                 }
             }
 
-            Console.WriteLine("Starting TorSharp...");
-            using (var proxy = new TorSharpProxy(settings))
+            Console.WriteLine("Starting TorProxy...");
+            using (var proxy = new TorProxy(settings))
             {
                 var handler = new HttpClientHandler
                 {

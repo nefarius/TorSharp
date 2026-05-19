@@ -1,9 +1,9 @@
 ﻿using System.Net;
-using Knapcode.TorSharp;
+using Nefarius.Utilities.TorProxy;
 
 // Starting on .NET 6, there is built-in support for SOCKS proxies. This means we don't need Privoxy!
 // https://devblogs.microsoft.com/dotnet/dotnet-6-networking-improvements/#socks-proxy-support
-var settings = new TorSharpSettings
+var settings = new TorProxySettings
 {
     PrivoxySettings = { Disable = true }
 };
@@ -11,12 +11,12 @@ var settings = new TorSharpSettings
 // download Tor
 using (var httpClient = new HttpClient())
 {
-    var fetcher = new TorSharpToolFetcher(settings, httpClient);
+    var fetcher = new TorProxyToolFetcher(settings, httpClient);
     await fetcher.FetchAsync();
 }
 
 // execute
-using (var proxy = new TorSharpProxy(settings))
+using (var proxy = new TorProxy(settings))
 {
     await proxy.ConfigureAndStartAsync();
 

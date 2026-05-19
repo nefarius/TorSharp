@@ -1,0 +1,63 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace Nefarius.Utilities.TorProxy.Tools;
+
+/// <summary>
+/// Information on how a tool is laid out on disk and how it should be interacted with by TorProxy.
+/// </summary>
+internal class ToolSettings
+{
+    /// <summary>
+    /// The name of the tool for messages.
+    /// </summary>
+    public string Name { get; set; } = null!;
+
+    /// <summary>
+    /// The prefix of the compressed tool's file name. For example, "tor-linux32-".
+    /// </summary>
+    public string Prefix { get; set; } = null!;
+
+    /// <summary>
+    /// The relative path inside the extracted directory to the tool's main executable.
+    /// </summary>
+    public string ExecutablePath { get; set; } = null!;
+
+    /// <summary>
+    /// The relative path inside the extracted directory to use as the tool's working directory.
+    /// </summary>
+    public string WorkingDirectory { get; set; } = null!;
+
+    /// <summary>
+    /// The relative path inside the extracted directory to the tool's configuration file.
+    /// </summary>
+    public string ConfigurationPath { get; set; } = null!;
+
+    /// <summary>
+    /// The delegate to get the arguments for a tool, given a tool instance.
+    /// </summary>
+    public Func<Tool, IEnumerable<string>> GetArguments { get; set; } = null!;
+
+    /// <summary>
+    /// The delegate to get the additional environment variables for a tool, given a tool instance.
+    /// </summary>
+    public Func<Tool, Dictionary<string, string>> GetEnvironmentVariables { get; set; } = null!;
+
+    /// <summary>
+    /// The format of the compress tool archive file.
+    /// </summary>
+    public ZippedToolFormat ZippedToolFormat { get; set; }
+
+    /// <summary>
+    /// A delegate to determine whether an entry (file) in the tool archive should be extracted. The input string
+    /// is the entry name inside the archive. The returned string is the relative path inside the extracted
+    /// directory to use for the entry. If null is returned, the entry is skipped.
+    /// </summary>
+    public Func<string, string?> GetEntryPath { get; set; } = null!;
+
+    /// <summary>
+    /// A verbatim path used to point to the tool executable. This can be an absolute path, a path relative, or an
+    /// executable name present in the PATH variable (e.g. installed to the local machine).
+    /// </summary>
+    public string? ExecutablePathOverride { get; set; }
+}
