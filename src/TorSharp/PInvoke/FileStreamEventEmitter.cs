@@ -17,26 +17,38 @@ internal class FileStreamEventEmitter : IDisposable
     {
         _cts = new CancellationTokenSource();
         _onData = onData;
-        var _ = Task.Run(async () =>
-        {
-            _fileStream = new FileStream(new SafeFileHandle(handle, ownsHandle: true), FileAccess.Read);
-            _streamReader = new StreamReader(_fileStream);
 
-            string? line;
-            do
+        // Initialise synchronously so Dispose() can always reach and release the handles,
+        // even if called before the background task has had a chance to run.
+        _fileStream = new FileStream(new SafeFileHandle(handle, ownsHandle: true), FileAccess.Read);
+        _streamReader = new StreamReader(_fileStream);
+
+        var _ = Task.Run(ReadLoopAsync);
+    }
+
+    private async Task ReadLoopAsync()
+    {
+        // Guard: Dispose() may have been called between the constructor and this point.
+        if (_cts.IsCancellationRequested)
+        {
+            return;
+        }
+
+        string? line;
+        do
+        {
+            try
             {
-                try
-                {
-                    line = await _streamReader.ReadLineAsync().ConfigureAwait(false);
-                    _onData(line);
-                }
-                catch (Exception)
-                {
-                    break;
-                }
+                line = await _streamReader!.ReadLineAsync().ConfigureAwait(false);
+                _onData(line);
             }
-            while (!_cts.IsCancellationRequested && line != null);
-        });
+            catch (Exception)
+            {
+                // Covers both normal EOF and ObjectDisposedException from a concurrent Dispose().
+                break;
+            }
+        }
+        while (!_cts.IsCancellationRequested && line != null);
     }
 
     public void Dispose()
