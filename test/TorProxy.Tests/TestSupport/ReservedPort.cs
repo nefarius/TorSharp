@@ -35,27 +35,34 @@ namespace Nefarius.Utilities.TorProxy.Tests.TestSupport
 
         public static ReservedPort Reserve()
         {
-            var port = 50000;
-            while (port < ushort.MaxValue)
+            // Randomise the start offset so that parallel dotnet-test processes (e.g. one
+            // per target framework) are extremely unlikely to converge on the same candidate
+            // port simultaneously.  The in-process HashSet only prevents intra-process
+            // collisions; random starts handle the inter-process case.
+            var rng = new Random();
+            var start = rng.Next(50001, 60001);
+            var port = start;
+            var attempts = 0;
+            const int MaxAttempts = 10000;
+
+            while (attempts < MaxAttempts)
             {
-                port++;
+                attempts++;
 
                 lock (Lock)
                 {
-                    if (ReservedPorts.Contains(port))
+                    if (!ReservedPorts.Contains(port) && IsPortFree(port))
                     {
-                        continue;
+                        Thread.Sleep(100);
+                        ReservedPorts.Add(port);
+                        return new ReservedPort(port);
                     }
+                }
 
-                    if (!IsPortFree(port))
-                    {
-                        continue;
-                    }
-
-                    Thread.Sleep(100);
-
-                    ReservedPorts.Add(port);
-                    return new ReservedPort(port);
+                port++;
+                if (port > 65534)
+                {
+                    port = 50001;
                 }
             }
 
