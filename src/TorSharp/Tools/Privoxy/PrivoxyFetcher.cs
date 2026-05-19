@@ -30,12 +30,24 @@ internal class PrivoxyFetcher : IFileFetcher
 
     public async Task<DownloadableFile> GetLatestAsync()
     {
-        // With the mirror as the primary path the upstream strategy is simpler:
-        // silvester.org.uk is the one reliable source. ToolDownloadStrategy.All
-        // now means "the enabled upstream source must succeed" rather than racing
-        // several unreliable sources.
-        var result = await GetLatestOrNullFromFileListingAsync(PrivoxyMirrorBaseUrl, CancellationToken.None)
-            .ConfigureAwait(false);
+        DownloadableFile? result;
+        try
+        {
+            result = await GetLatestOrNullFromFileListingAsync(PrivoxyMirrorBaseUrl, CancellationToken.None)
+                .ConfigureAwait(false);
+        }
+        catch (TorSharpException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            // Wrap transport errors (timeout, DNS, TCP, HTTP errors) so callers that
+            // handle TorSharpException (e.g. skipOnExceptions in RetryTheory) can
+            // react uniformly instead of getting a raw TaskCanceledException.
+            throw new TorSharpException(
+                $"Could not fetch the Privoxy version list from {PrivoxyMirrorBaseUrl}: {ex.Message}", ex);
+        }
 
         if (result == null)
         {

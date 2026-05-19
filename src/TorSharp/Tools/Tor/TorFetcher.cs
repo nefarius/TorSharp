@@ -21,13 +21,26 @@ internal class TorFetcher : IFileFetcher
     {
         var fileNamePatternAndFormat = _settings.TorFilePatternResolver?.Invoke(_settings, BaseUrl) ?? GetFileNamePatternAndFormat();
 
-        var downloadableFile = await HttpHelpers.RetryAsync(ct =>
-            FetcherHelpers.GetLatestDownloadableFileAsync(
-                _httpClient,
-                BaseUrl,
-                fileNamePatternAndFormat.Pattern,
-                fileNamePatternAndFormat.Format,
-                ct)).ConfigureAwait(false);
+        DownloadableFile? downloadableFile;
+        try
+        {
+            downloadableFile = await HttpHelpers.RetryAsync(ct =>
+                FetcherHelpers.GetLatestDownloadableFileAsync(
+                    _httpClient,
+                    BaseUrl,
+                    fileNamePatternAndFormat.Pattern,
+                    fileNamePatternAndFormat.Format,
+                    ct)).ConfigureAwait(false);
+        }
+        catch (TorSharpException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw new TorSharpException(
+                $"Could not fetch the Tor version list from {BaseUrl.AbsoluteUri}: {ex.Message}", ex);
+        }
 
         if (downloadableFile == null)
         {

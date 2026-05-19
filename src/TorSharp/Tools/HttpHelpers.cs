@@ -25,6 +25,13 @@ internal static class HttpHelpers
     private const int MaxAttempts = 3;
 
     /// <summary>
+    /// Per-request wall-clock timeout applied to discovery (HTML/RSS scraping) calls in
+    /// <see cref="FetcherHelpers"/>. Kept well below <see cref="HttpClient.Timeout"/> so
+    /// an unresponsive upstream fails fast rather than blocking for the full client timeout.
+    /// </summary>
+    internal static readonly TimeSpan DiscoveryTimeout = TimeSpan.FromSeconds(30);
+
+    /// <summary>
     /// Executes <paramref name="action"/> with up to <see cref="MaxAttempts"/> retries
     /// on transient HTTP / IO failures (5xx, 408, 429, network errors).
     /// </summary>

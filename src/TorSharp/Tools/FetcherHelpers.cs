@@ -17,8 +17,13 @@ internal static class FetcherHelpers
     {
         return HttpHelpers.RetryAsync(async ct =>
         {
+            // Cap each discovery request independently so a slow/unresponsive host
+            // does not block for the full HttpClient.Timeout (100 s default).
+            using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            timeoutCts.CancelAfter(HttpHelpers.DiscoveryTimeout);
+
             using var request = HttpHelpers.BuildGet(requestUri);
-            using var response = await httpClient.SendAsync(request, ct).ConfigureAwait(false);
+            using var response = await httpClient.SendAsync(request, timeoutCts.Token).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
         }, token);
