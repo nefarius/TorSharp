@@ -45,16 +45,22 @@ internal class TorFetcher : IFileFetcher
 
         if (_settings.OSPlatform == TorSharpOSPlatform.Windows)
         {
-            pattern = _settings.Architecture == TorSharpArchitecture.X86
-                ? @"tor-expert-bundle-windows-i686-(?<Version>[\d\.]+)\.tar\.gz$"
-                : @"tor-expert-bundle-windows-x86_64-(?<Version>[\d\.]+)\.tar\.gz$";
+            pattern = _settings.Architecture switch
+            {
+                TorSharpArchitecture.X86 => @"tor-expert-bundle-windows-i686-(?<Version>[\d\.]+)\.tar\.gz$",
+                TorSharpArchitecture.X64 => @"tor-expert-bundle-windows-x86_64-(?<Version>[\d\.]+)\.tar\.gz$",
+                _ => null,
+            };
             format = ZippedToolFormat.TarGz;
         }
         else if (_settings.OSPlatform == TorSharpOSPlatform.Linux)
         {
-            pattern = _settings.Architecture == TorSharpArchitecture.X86
-                ? @"tor-expert-bundle-linux-i686-(?<Version>[\d\.]+)\.tar\.gz$"
-                : @"tor-expert-bundle-linux-x86_64-(?<Version>[\d\.]+)\.tar\.gz$";
+            pattern = _settings.Architecture switch
+            {
+                TorSharpArchitecture.X86 => @"tor-expert-bundle-linux-i686-(?<Version>[\d\.]+)\.tar\.gz$",
+                TorSharpArchitecture.X64 => @"tor-expert-bundle-linux-x86_64-(?<Version>[\d\.]+)\.tar\.gz$",
+                _ => null,
+            };
             format = ZippedToolFormat.TarGz;
         }
 

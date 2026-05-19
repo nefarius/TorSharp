@@ -147,7 +147,7 @@ internal static partial class WindowsUtility
 
                 if (onStderr != null)
                 {
-                    stderr = new FileStreamEventEmitter(parentStdout, onStderr);
+                    stderr = new FileStreamEventEmitter(parentStderr, onStderr);
                 }
 
                 return new RedirectedProcess(processInformation, stdout, stderr);
@@ -158,6 +158,8 @@ internal static partial class WindowsUtility
             }
             else
             {
+                CloseHandle(parentStdout);
+                CloseHandle(parentStderr);
                 return null;
             }
         }
@@ -180,6 +182,7 @@ internal static partial class WindowsUtility
         readHandle = IntPtr.Zero;
         writeHandle = IntPtr.Zero;
         var securityAttributes = new WindowsApi.SECURITY_ATTRIBUTES();
+        securityAttributes.nLength = (uint)Marshal.SizeOf<WindowsApi.SECURITY_ATTRIBUTES>();
         securityAttributes.bInheritHandle = true;
 
         if (!WindowsApi.CreatePipe(ref readHandle, ref writeHandle, ref securityAttributes, nSize: 0))

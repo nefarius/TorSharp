@@ -98,11 +98,19 @@ internal class VirtualDesktopToolRunner : IToolRunner
 
                     int length = Marshal.SizeOf(typeof(WindowsApi.JOBOBJECT_EXTENDED_LIMIT_INFORMATION));
                     IntPtr extendedPointer = Marshal.AllocHGlobal(length);
-                    Marshal.StructureToPtr(extended, extendedPointer, false);
-
-                    if (!WindowsApi.SetInformationJobObject(jobHandle.DangerousGetHandle(), WindowsApi.JOBOBJECTINFOCLASS.ExtendedLimitInformation, extendedPointer, (uint)length))
+                    try
                     {
-                        throw new TorSharpException($"Unable to set information on the job object. Error: {WindowsUtility.GetLastErrorMessage()}");
+                        Marshal.StructureToPtr(extended, extendedPointer, false);
+
+                        if (!WindowsApi.SetInformationJobObject(jobHandle.DangerousGetHandle(), WindowsApi.JOBOBJECTINFOCLASS.ExtendedLimitInformation, extendedPointer, (uint)length))
+                        {
+                            throw new TorSharpException($"Unable to set information on the job object. Error: {WindowsUtility.GetLastErrorMessage()}");
+                        }
+                    }
+                    finally
+                    {
+                        Marshal.DestroyStructure<WindowsApi.JOBOBJECT_EXTENDED_LIMIT_INFORMATION>(extendedPointer);
+                        Marshal.FreeHGlobal(extendedPointer);
                     }
 
                     _jobHandle = jobHandle;

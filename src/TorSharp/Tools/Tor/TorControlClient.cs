@@ -29,7 +29,17 @@ public class TorControlClient : IDisposable
 
     public async Task AuthenticateAsync(string? password)
     {
-        var command = password != null ? $"AUTHENTICATE \"{password}\"" : "AUTHENTICATE";
+        string command;
+        if (password != null)
+        {
+            var escaped = password.Replace("\\", "\\\\").Replace("\"", "\\\"");
+            command = $"AUTHENTICATE \"{escaped}\"";
+        }
+        else
+        {
+            command = "AUTHENTICATE";
+        }
+
         await SendCommandAsync(command, SuccessResponse).ConfigureAwait(false);
     }
 
@@ -163,6 +173,11 @@ public class TorControlClient : IDisposable
                 while (true)
                 {
                     var currentLine = await _reader.ReadLineAsync().ConfigureAwait(false);
+                    if (currentLine == null)
+                    {
+                        throw new TorControlException("Connection closed unexpectedly while reading multiline GETINFO response.");
+                    }
+
                     if (currentLine == ".")
                     {
                         break;

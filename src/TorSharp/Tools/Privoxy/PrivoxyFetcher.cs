@@ -84,7 +84,7 @@ internal class PrivoxyFetcher : IFileFetcher
 
         cts.Cancel();
 
-        if (results.Count == 0 || !takeFirst)
+        if (results.Count == 0)
         {
             if (faults.Any())
             {

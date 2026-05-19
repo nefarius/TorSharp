@@ -74,7 +74,7 @@ internal class ArchiveUtility
                 continue;
             }
 
-            var fullEntryPath = Path.GetFullPath(Path.Combine(outputDir!, entryPath));
+            var fullEntryPath = ResolveEntryPath(outputDir!, entryPath);
             var entryDir = Path.GetDirectoryName(fullEntryPath)!;
             if (createdDirs.Add(entryDir))
             {
@@ -131,7 +131,8 @@ internal class ArchiveUtility
 
         ReadExact(fileStream, buffer, 0, headerLength);
         var controlSectionHeader = ArFileHeader.Read(buffer);
-        fileStream.Position += controlSectionHeader.FileSize;
+        // AR members are 2-byte aligned; skip padding byte when file size is odd.
+        fileStream.Position += controlSectionHeader.FileSize + (controlSectionHeader.FileSize % 2);
 
         ReadExact(fileStream, buffer, 0, headerLength);
         var dataSectionHeader = ArFileHeader.Read(buffer);
@@ -240,7 +241,7 @@ internal class ArchiveUtility
                 continue;
             }
 
-            var fullEntryPath = Path.GetFullPath(Path.Combine(outputDir!, entryPath));
+            var fullEntryPath = ResolveEntryPath(outputDir!, entryPath);
             var entryDir = Path.GetDirectoryName(fullEntryPath)!;
             if (createdDirs.Add(entryDir))
             {
@@ -284,7 +285,7 @@ internal class ArchiveUtility
                 continue;
             }
 
-            var fullEntryPath = Path.GetFullPath(Path.Combine(outputDir!, entryPath));
+            var fullEntryPath = ResolveEntryPath(outputDir!, entryPath);
             var entryDir = Path.GetDirectoryName(fullEntryPath)!;
             if (createdDirs.Add(entryDir))
             {
@@ -296,6 +297,18 @@ internal class ArchiveUtility
             await entryStream.CopyToAsync(outputStream).ConfigureAwait(false);
         }
 #endif
+    }
+
+    private static string ResolveEntryPath(string outputDir, string entryPath)
+    {
+        var canonicalRoot = Path.GetFullPath(outputDir) + Path.DirectorySeparatorChar;
+        var fullPath = Path.GetFullPath(Path.Combine(outputDir, entryPath));
+        if (!fullPath.StartsWith(canonicalRoot, StringComparison.Ordinal))
+        {
+            throw new TorSharpException($"Archive entry '{entryPath}' would extract outside the target directory.");
+        }
+
+        return fullPath;
     }
 
     private static void ReadExact(Stream stream, byte[] buffer, int offset, int count)

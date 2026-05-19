@@ -20,6 +20,10 @@ COPY --from=publish /app .
 
 RUN cat /etc/os-release
 
-RUN apt-get update -y && apt-get install -y libbrotli1 libmbedtls14 && apt-get clean
+RUN apt-get update -y && apt-get install -y --no-install-recommends libbrotli1 libmbedtls14 && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN dotnet app.dll
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser
+RUN chown -R appuser:appgroup /app
+USER appuser
+
+ENTRYPOINT ["dotnet", "app.dll"]

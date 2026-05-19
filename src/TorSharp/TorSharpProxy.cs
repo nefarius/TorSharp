@@ -135,6 +135,11 @@ public class TorSharpProxy : ITorSharpProxy
     /// </summary>
     public async Task StartAsync()
     {
+        if (!_configured)
+        {
+            throw new InvalidOperationException($"Call {nameof(ConfigureAsync)} before {nameof(StartAsync)}.");
+        }
+
         if (!_started)
         {
             await _toolRunner.StartAsync(_tor!).ConfigureAwait(false);

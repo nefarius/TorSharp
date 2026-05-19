@@ -208,7 +208,6 @@ public class TorSharpToolFetcher : ITorSharpToolFetcher
 #if NETSTANDARD
             var protocols = new[]
             {
-                SecurityProtocolType.Ssl3,
                 SecurityProtocolType.Tls,
                 SecurityProtocolType.Tls11,
                 SecurityProtocolType.Tls12,

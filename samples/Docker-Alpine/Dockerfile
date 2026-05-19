@@ -20,6 +20,10 @@ COPY --from=publish /app .
 
 RUN cat /etc/os-release
 
-RUN apk update && apk add tor privoxy
+RUN apk add --no-cache tor privoxy
 
-RUN dotnet app.dll
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN chown -R appuser:appgroup /app
+USER appuser
+
+ENTRYPOINT ["dotnet", "app.dll"]

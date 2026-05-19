@@ -42,6 +42,8 @@ internal class FileStreamEventEmitter : IDisposable
     public void Dispose()
     {
         _cts.Cancel();
+        _streamReader?.Dispose();
         _fileStream?.Dispose();
+        _cts.Dispose();
     }
 }

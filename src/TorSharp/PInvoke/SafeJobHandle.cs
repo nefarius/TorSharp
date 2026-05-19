@@ -12,11 +12,7 @@ internal class SafeJobHandle : SafeHandleZeroOrMinusOneIsInvalid
 
     protected override bool ReleaseHandle()
     {
-        if (!WindowsApi.TerminateJobObject(handle, uExitCode: 0))
-        {
-            throw new TorSharpException($"Unable to terminate the job object. Error: {WindowsUtility.GetLastErrorMessage()}");
-        }
-
-        return true;
+        // ReleaseHandle must never throw: it is called from a finalizer / CER context.
+        return WindowsApi.TerminateJobObject(handle, uExitCode: 0);
     }
 }

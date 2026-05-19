@@ -59,7 +59,7 @@ namespace Knapcode.TorSharp.Tests.TestSupport
                 }
             }
 
-            return null!;
+            throw new InvalidOperationException("Could not reserve a free TCP port after exhausting the search range.");
         }
 
         private static bool IsPortFree(int port)

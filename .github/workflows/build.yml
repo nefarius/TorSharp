@@ -97,6 +97,9 @@ jobs:
     if: github.event_name == 'push'
     runs-on: windows-2025
 
+    permissions:
+      packages: write
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -114,4 +117,4 @@ jobs:
           path: packages
 
       - name: Push artifacts
-        run: dotnet nuget push packages\*.nupkg -s https://nuget.pkg.github.com/joelverhagen/index.json -k ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+        run: dotnet nuget push packages\*.nupkg -s https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json -k ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
