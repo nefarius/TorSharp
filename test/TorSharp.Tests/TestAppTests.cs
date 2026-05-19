@@ -139,7 +139,7 @@ namespace Knapcode.TorSharp.Tests
             }
 
             _output.WriteLine("Starting: dotnet " + startInfo.Arguments);
-            var process = Process.Start(startInfo);
+            var process = Process.Start(startInfo)!;
 
             output = new ConcurrentQueue<string>();
 

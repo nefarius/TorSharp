@@ -59,7 +59,7 @@ namespace Knapcode.TorSharp.Tests.TestSupport
                 }
             }
 
-            return null;
+            return null!;
         }
 
         private static bool IsPortFree(int port)

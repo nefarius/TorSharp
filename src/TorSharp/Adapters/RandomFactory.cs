@@ -1,12 +1,8 @@
 ﻿using System.Security.Cryptography;
 
-namespace Knapcode.TorSharp.Adapters
+namespace Knapcode.TorSharp.Adapters;
+
+internal class RandomFactory : IRandomFactory
 {
-    internal class RandomFactory : IRandomFactory
-    {
-        public IRandom Create()
-        {
-            return new Random(new RNGCryptoServiceProvider());
-        }
-    }
+    public IRandom Create() => new Random(RandomNumberGenerator.Create());
 }

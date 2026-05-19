@@ -11,7 +11,7 @@ namespace Knapcode.TorSharp.Tests.Tools.Tor
         [DisplayTestMethodName]
         public async Task CanDisposeAfterFailedConnect()
         {
-            TorControlClient client = null;
+            TorControlClient? client = null;
             try
             {
                 client = new TorControlClient();
@@ -22,7 +22,7 @@ namespace Knapcode.TorSharp.Tests.Tools.Tor
             }
             finally
             {
-                client.Dispose();
+                client?.Dispose();
             }
         }
     }

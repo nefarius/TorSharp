@@ -2,8 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net6.0</TargetFrameworks>
-    <IsPackable>false</IsPackable>
+    <TargetFramework>net9.0</TargetFramework>
     <RootNamespace>Knapcode.TorSharp.Docker</RootNamespace>
   </PropertyGroup>
 

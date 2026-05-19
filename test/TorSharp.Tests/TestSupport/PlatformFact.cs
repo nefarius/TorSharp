@@ -4,7 +4,7 @@ namespace Knapcode.TorSharp.Tests.TestSupport
 {
     public class PlatformFact : RetryFactAttribute
     {
-        public PlatformFact(string osPlatform = null, string architecture = null)
+        public PlatformFact(string? osPlatform = null, string? architecture = null)
         {
             var settings = new TorSharpSettings();
 

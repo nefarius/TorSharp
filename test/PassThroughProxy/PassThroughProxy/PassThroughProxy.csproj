@@ -1,9 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks Condition="'$(CoreOnly)' != 'true'">net6.0;net462;net472</TargetFrameworks>
-    <TargetFrameworks Condition="'$(CoreOnly)' == 'true'">net6.0</TargetFrameworks>
-    <IsPackable>false</IsPackable>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <RootNamespace>Proxy</RootNamespace>
     <PackageId>PassThroughProxy</PackageId>
     <Authors>Ahmed Agabani, Joel Verhagen</Authors>
@@ -11,12 +9,8 @@
     <PackageTags>https connect proxy tunnel</PackageTags>
     <PackageVersion>1.0.0</PackageVersion>
     <Description>A forward proxy server supporting HTTP proxy and HTTPS (CONNECT) tunnels.</Description>
-    <SignAssembly>true</SignAssembly>
+    <!-- Override root signing key — this project has its own test-only key -->
     <AssemblyOriginatorKeyFile>..\PassThroughProxy.ForTesting.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
-  </ItemGroup>
 
 </Project>

@@ -1,9 +1,8 @@
 using System.Threading.Tasks;
 
-namespace Knapcode.TorSharp.Tools
+namespace Knapcode.TorSharp.Tools;
+
+internal interface IFileFetcher
 {
-    internal interface IFileFetcher
-    {
-        Task<DownloadableFile> GetLatestAsync();
-    }
+    Task<DownloadableFile> GetLatestAsync();
 }

@@ -80,7 +80,7 @@ namespace Knapcode.TorSharp.Tests
                             var torCheck = await proxiedHttpClient.GetStringAsync("https://check.torproject.org/api/ip");
                             _output.WriteLine("Tor Check: " + torCheck);
                             var json = JsonConvert.DeserializeObject<JObject>(torCheck);
-                            return json.Value<bool>("IsTor");
+                            return json!.Value<bool>("IsTor");
                         },
                         () => new SocketsHttpHandler
                         {
@@ -407,7 +407,7 @@ namespace Knapcode.TorSharp.Tests
             await ExecuteEndToEndTestAsync(settings, barrier: null);
         }
 
-        private async Task ExecuteEndToEndTestAsync(TorSharpSettings settings, Barrier barrier)
+        private async Task ExecuteEndToEndTestAsync(TorSharpSettings settings, Barrier? barrier)
         {
             // Arrange
             using (var httpClient = new HttpClient())

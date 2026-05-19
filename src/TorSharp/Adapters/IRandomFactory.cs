@@ -1,7 +1,6 @@
-﻿namespace Knapcode.TorSharp.Adapters
+﻿namespace Knapcode.TorSharp.Adapters;
+
+internal interface IRandomFactory
 {
-    internal interface IRandomFactory
-    {
-        IRandom Create();
-    }
+    IRandom Create();
 }
