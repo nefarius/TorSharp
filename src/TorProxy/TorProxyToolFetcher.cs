@@ -22,7 +22,7 @@ public interface ITorProxyToolFetcher
 /// </summary>
 public class TorProxyToolFetcher : ITorProxyToolFetcher
 {
-    private static bool SecureProtocolsEnabled = false;
+    private static volatile bool SecureProtocolsEnabled;
 
     private readonly TorProxySettings _settings;
     private readonly ISimpleHttpClient _simpleHttpClient;

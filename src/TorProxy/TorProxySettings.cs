@@ -111,7 +111,8 @@ public class TorProxySettings
     public bool UseMirror { get; set; }
 
     /// <summary>
-    /// URL of the mirror manifest JSON. Defaults to the official TorSharp.Mirror at
+    /// URL of the mirror manifest JSON. Defaults to the official external mirror repository
+    /// (github.com/nefarius/TorSharp.Mirror) at
     /// <c>https://github.com/nefarius/TorSharp.Mirror/releases/latest/download/manifest.json</c>.
     /// Override this to point at a self-hosted mirror that serves a compatible manifest.
     /// Ignored when <see cref="UseMirror"/> is <c>false</c>.

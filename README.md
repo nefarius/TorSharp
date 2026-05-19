@@ -275,7 +275,7 @@ I have the checksum verification in there because these pages have SSL problems 
 
 On Linux, the Privoxy binaries fetched seem to be built for the latest Debian and Ubuntu distributions. I can confirm that some other distributions don't work.
 
-I'm no Linux expert but my guess is that there are missing shared libraries that are different on the running platform than the Debian platform that Privoxy was compiled for. The easiest workaround is to install Privoxy to your system and set the `TorProxySettings.PrivoxySetting.ExecutablePathOverride` configuration setting to `"privoxy"` (i.e. use Privoxy from PATH).
+I'm no Linux expert but my guess is that there are missing shared libraries that are different on the running platform than the Debian platform that Privoxy was compiled for. The easiest workaround is to install Privoxy to your system and set the `TorProxySettings.PrivoxySettings.ExecutablePathOverride` configuration setting to `"privoxy"` (i.e. use Privoxy from PATH).
 
 After you install it, make sure `privoxy` is in the PATH.
 
