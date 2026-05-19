@@ -5,8 +5,10 @@ using System.IO.Compression;
 using System.Text;
 using System.Threading.Tasks;
 using SharpCompress.Compressors.Xz;
+#if NETSTANDARD2_0
 using SharpCompress.Readers;
 using SharpCompress.Readers.Tar;
+#endif
 
 namespace Knapcode.TorSharp.Tools;
 
@@ -209,11 +211,58 @@ internal class ArchiveUtility
 
     private static async Task ReadTarAsync(Stream tarStream, string? outputDir, Func<string, string?>? getEntryPath, bool shouldExtract)
     {
-        // LookForHeader=false skips stream-seeking format detection, allowing non-seekable streams
-        // such as GZipStream and XZStream to be read correctly.
+#if NET7_0_OR_GREATER
+        // Use System.Formats.Tar.TarReader (BCL, .NET 7+): works with non-seekable streams directly.
+        using var tarReader = new System.Formats.Tar.TarReader(tarStream, leaveOpen: true);
+        var createdDirs = new HashSet<string>();
+
+        while (true)
+        {
+            var entry = await tarReader.GetNextEntryAsync().ConfigureAwait(false);
+            if (entry == null)
+            {
+                break;
+            }
+
+            if (!shouldExtract)
+            {
+                return;
+            }
+
+            if (entry.EntryType == System.Formats.Tar.TarEntryType.Directory)
+            {
+                continue;
+            }
+
+            var entryPath = getEntryPath!(entry.Name);
+            if (entryPath == null)
+            {
+                continue;
+            }
+
+            var fullEntryPath = Path.GetFullPath(Path.Combine(outputDir!, entryPath));
+            var entryDir = Path.GetDirectoryName(fullEntryPath)!;
+            if (createdDirs.Add(entryDir))
+            {
+                Directory.CreateDirectory(entryDir);
+            }
+
+            if (entry.DataStream != null)
+            {
+                using var outputStream = new FileStream(fullEntryPath, FileMode.Create);
+                await entry.DataStream.CopyToAsync(outputStream).ConfigureAwait(false);
+            }
+        }
+#else
+        // On netstandard2.0, SharpCompress 0.48 requires a seekable stream. Buffer the
+        // non-seekable GZipStream / XZStream into memory before passing to the TAR reader.
+        using var buffered = new MemoryStream();
+        await tarStream.CopyToAsync(buffered).ConfigureAwait(false);
+        buffered.Position = 0;
+
         var readerOptions = new ReaderOptions { LookForHeader = false };
 #pragma warning disable CAC001 // IAsyncDisposable.DisposeAsync() ConfigureAwait not supported on netstandard2.0
-        await using var tarReader = await TarReader.OpenAsyncReader(tarStream, readerOptions).ConfigureAwait(false);
+        await using var tarReader = await TarReader.OpenAsyncReader(buffered, readerOptions).ConfigureAwait(false);
 #pragma warning restore CAC001
         var createdDirs = new HashSet<string>();
 
@@ -246,6 +295,7 @@ internal class ArchiveUtility
             using var outputStream = new FileStream(fullEntryPath, FileMode.Create);
             await entryStream.CopyToAsync(outputStream).ConfigureAwait(false);
         }
+#endif
     }
 
     private static void ReadExact(Stream stream, byte[] buffer, int offset, int count)
