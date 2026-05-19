@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Text;
 using System.Threading.Tasks;
 using SharpCompress.Compressors.Xz;
+using SharpCompress.Readers;
 using SharpCompress.Readers.Tar;
 
 namespace Knapcode.TorSharp.Tools;
@@ -208,8 +209,11 @@ internal class ArchiveUtility
 
     private static async Task ReadTarAsync(Stream tarStream, string? outputDir, Func<string, string?>? getEntryPath, bool shouldExtract)
     {
-#pragma warning disable CAC001 // IAsyncDisposable.DisposeAsync() ConfigureAwait not supported on all targets
-        await using var tarReader = await TarReader.OpenAsyncReader(tarStream).ConfigureAwait(false);
+        // LookForHeader=false skips stream-seeking format detection, allowing non-seekable streams
+        // such as GZipStream and XZStream to be read correctly.
+        var readerOptions = new ReaderOptions { LookForHeader = false };
+#pragma warning disable CAC001 // IAsyncDisposable.DisposeAsync() ConfigureAwait not supported on netstandard2.0
+        await using var tarReader = await TarReader.OpenAsyncReader(tarStream, readerOptions).ConfigureAwait(false);
 #pragma warning restore CAC001
         var createdDirs = new HashSet<string>();
 
