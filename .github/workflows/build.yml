@@ -51,10 +51,10 @@ jobs:
             9.0.x
 
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore TorSharp.sln
 
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build TorSharp.sln --configuration Release --no-restore
 
       - name: Install Privoxy dependencies (Linux)
         if: runner.os == 'Linux'
@@ -73,14 +73,14 @@ jobs:
         uses: mxschmitt/action-tmate@v3
 
       - name: Test
-        run: dotnet test --configuration Release --no-restore --no-build --logger "console;verbosity=normal" --blame-hang-timeout 30m
+        run: dotnet test TorSharp.sln --configuration Release --no-restore --no-build --logger "console;verbosity=normal" --blame-hang-timeout 30m
 
       - name: Format
-        run: dotnet format --no-restore --verify-no-changes
+        run: dotnet format TorSharp.sln --no-restore --verify-no-changes
 
       - name: Pack
         if: matrix.os == 'windows-2025'
-        run: dotnet pack --configuration Release --no-restore --no-build
+        run: dotnet pack TorSharp.sln --configuration Release --no-restore --no-build
         env:
           BUILD_STABLE_VERSION: ${{ inputs.build_stable_version }}
 
