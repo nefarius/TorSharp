@@ -2,16 +2,13 @@
 using Knapcode.TorSharp;
 using Knapcode.TorSharp.Tests.TestSupport;
 
-if (args.Length != 4
-    || !bool.TryParse(args[0], out var writeToConsole)
-    || !Enum.TryParse<ToolRunnerType>(args[1], out var toolRunnerType))
+if (args.Length != 3)
 {
-    Console.WriteLine("There must be exactly four command line arguments:");
+    Console.WriteLine("There must be exactly three command line arguments:");
     Console.WriteLine();
     Console.WriteLine("  1. a string parseable as a boolean, which is whether to write tool output to the console");
-    Console.WriteLine("  2. a string parseable as a ToolRunnerType");
-    Console.WriteLine("  3. the zipped tools directory");
-    Console.WriteLine("  4. the extracted tools directory");
+    Console.WriteLine("  2. the zipped tools directory");
+    Console.WriteLine("  3. the extracted tools directory");
     Console.WriteLine();
     Console.WriteLine($"{args.Length} arguments were provided:");
     Console.WriteLine();
@@ -19,6 +16,12 @@ if (args.Length != 4
     {
         Console.WriteLine($"  {i + 1}. '{args[i]}'");
     }
+    return 1;
+}
+
+if (!bool.TryParse(args[0], out var writeToConsole))
+{
+    Console.WriteLine($"Argument 1 must be a boolean, but got: '{args[0]}'");
     return 1;
 }
 
@@ -36,9 +39,8 @@ var settings = new TorSharpSettings
         ControlPort = reservedPorts.Ports[2],
     },
     WriteToConsole = writeToConsole,
-    ToolRunnerType = toolRunnerType,
-    ZippedToolsDirectory = args[2],
-    ExtractedToolsDirectory = args[3],
+    ZippedToolsDirectory = args[1],
+    ExtractedToolsDirectory = args[2],
 };
 
 using (var httpClient = new HttpClient())

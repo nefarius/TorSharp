@@ -34,6 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CliWrap" />
     <PackageReference Include="ConfigureAwaitChecker.Analyzer">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -45,11 +46,6 @@
     <PackageReference Include="System.ServiceModel.Syndication" />
     <PackageReference Include="System.Text.Json" />
   </ItemGroup>
-
-  <!-- LibraryImport source generator emits unsafe code on .NET 7+ -->
-  <PropertyGroup Condition="'$(TargetFramework)' != 'netstandard2.0'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
 
   <PropertyGroup>
     <BeforePack>OutputVersion</BeforePack>

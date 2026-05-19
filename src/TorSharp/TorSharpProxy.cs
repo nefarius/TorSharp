@@ -59,14 +59,7 @@ public class TorSharpProxy : ITorSharpProxy
         _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         _torPasswordHasher = new TorPasswordHasher(new RandomFactory());
 
-        _toolRunner = settings.ToolRunnerType switch
-        {
-            ToolRunnerType.Simple => new SimpleToolRunner(),
-            ToolRunnerType.VirtualDesktop when settings.OSPlatform != TorSharpOSPlatform.Windows =>
-                throw new TorSharpException($"Cannot use the {nameof(ToolRunnerType.VirtualDesktop)} tool runner on {settings.OSPlatform}."),
-            ToolRunnerType.VirtualDesktop => new VirtualDesktopToolRunner(settings),
-            _ => throw new NotImplementedException($"The '{settings.ToolRunnerType}' tool runner is not supported."),
-        };
+        _toolRunner = new CliWrapToolRunner();
 
         _toolRunner.Stdout += (o, e) => OutputDataReceived?.Invoke(this, e);
         _toolRunner.Stderr += (o, e) => ErrorDataReceived?.Invoke(this, e);

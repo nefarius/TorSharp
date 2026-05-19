@@ -26,7 +26,6 @@ This product is produced independently from the Tor® anonymity software and car
     - ⚠️ Alpine supported via `ExecutablePathOverride` (must run `apk add tor privoxy` or `apk add tor` and disable Privoxy)
   - ❌ Mac OS X support is not planned.
 - Uses Privoxy to redirect HTTP proxy traffic to Tor (can be disabled).
-- On Windows, uses virtual desktops to manage Tor and Privoxy processes and hide the windows so it's cleaner.
 - Optionally downloads the latest version of Tor and Privoxy for you.
 
 ## Install
@@ -172,7 +171,6 @@ Parallel threads must have different values for these settings. The defaults wil
   - `TorSharpSettings.PrivoxySettings.Port`: this is the Privoxy listen port. Each Privoxy process needs its own port. Can be ignored if `TorSharpSettings.PrivoxySettings.Disable` is `true`.
   - `TorSharpSettings.TorSettings.SocksPort`: this is the Tor SOCKS listen port. Each Tor process needs its own port.
 - **Must be unique, but only if you set them:**
-  - `TorSharpSettings.VirtualDesktopName`: this is automatically generated based on `ExtractedToolsDirectory`, but if you manually set it, it must be unique.
   - `TorSharpSettings.TorSettings.ControlPort`: this is the Tor SOCKS listen port. Each Tor process needs its own port.
   - `TorSharpSettings.TorSettings.AdditionalSockPorts`: if used, it must have unique values.
   - `TorSharpSettings.TorSettings.HttpTunnelPort`: if used, it must have a unique value.

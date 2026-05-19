@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.0.0
+* Switch process management to [CliWrap](https://github.com/Tyrrrz/CliWrap) (v3.10.1), removing all hand-rolled PInvoke code.
+* Drop `ToolRunnerType` enum and `TorSharpSettings.ToolRunnerType` — there is now a single built-in runner for all platforms.
+* Drop `TorSharpSettings.VirtualDesktopName` — virtual-desktop isolation is no longer used.
+* All PInvoke files (`Desktop`, `Job`, `Process`, `FileStreamEventEmitter`, `SafeDesktopHandle`, `SafeJobHandle`) removed.
+
 ## 3.1.0
 * Add default-on mirror (`TorSharpSettings.UseMirror`): `TorSharpToolFetcher` now resolves
   Tor and Privoxy binaries from [TorSharp.Mirror](https://github.com/nefarius/TorSharp.Mirror)

@@ -6,6 +6,7 @@
 
   <!-- Library dependencies -->
   <ItemGroup>
+    <PackageVersion Include="CliWrap" Version="3.10.1" />
     <PackageVersion Include="ConfigureAwaitChecker.Analyzer" Version="5.0.0.1" />
     <PackageVersion Include="SharpCompress" Version="0.48.1" />
     <PackageVersion Include="System.ServiceModel.Syndication" Version="9.0.5" />
