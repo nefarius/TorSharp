@@ -12,16 +12,16 @@
     <Authors>Joel Verhagen</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>Use Tor for your C# HTTP clients. Use Privoxy or .NET 8+ SOCKS support to proxy HTTP traffic. Also supports netstandard2.0.</Description>
-    <PackageProjectUrl>https://github.com/joelverhagen/TorSharp</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/nefarius/TorSharp</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Copyright>Copyright © 2026 Joel Verhagen</Copyright>
+    <Copyright>Copyright © 2020 Joel Verhagen, © 2024-2026 Nefarius (fork contributions)</Copyright>
     <PackageTags>tor proxy privoxy http socks socks5 onion router https anonymize anonymous</PackageTags>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <DebugType>embedded</DebugType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <PackageIcon>icon.png</PackageIcon>
-    <PackageReleaseNotes>See CHANGELOG.md at https://github.com/joelverhagen/TorSharp/blob/master/CHANGELOG.md</PackageReleaseNotes>
+    <PackageReleaseNotes>See CHANGELOG.md at https://github.com/nefarius/TorSharp/blob/master/CHANGELOG.md</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">

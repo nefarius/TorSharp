@@ -17,7 +17,7 @@ internal static class HttpHelpers
     /// the client and operators can debug rate-limiting issues.
     /// </summary>
     public static string UserAgent { get; } =
-        $"TorSharp/{_version} (+https://github.com/joelverhagen/TorSharp)";
+        $"TorSharp/{_version} (+https://github.com/nefarius/TorSharp)";
 
     /// <summary>
     /// Maximum number of attempts for retryable HTTP requests.
