@@ -1,10 +1,27 @@
 # TorSharp
 
+[![.NET](https://github.com/nefarius/TorSharp/actions/workflows/build.yml/badge.svg)](https://github.com/nefarius/TorSharp/actions/workflows/build.yml)
+![.NET Standard 2.0](https://img.shields.io/badge/.NET-Standard%202.0-blue)
+![.NET 8](https://img.shields.io/badge/.NET-8-blue)
+![.NET 9](https://img.shields.io/badge/.NET-9-blue)
+[![NuGet Version](https://img.shields.io/nuget/v/Knapcode.TorSharp)](https://www.nuget.org/packages/Knapcode.TorSharp)
+[![NuGet downloads](https://img.shields.io/nuget/dt/Knapcode.TorSharp)](https://www.nuget.org/packages/Knapcode.TorSharp)
+
 Use Tor for your C# HTTP clients. Use Privoxy or .NET 6+ SOCKS support to proxy HTTP traffic.
 
 All you need is client code that can use a simple HTTP proxy.
 
-[![NuGet downloads](https://img.shields.io/nuget/dt/Knapcode.TorSharp.svg)](https://www.nuget.org/packages/Knapcode.TorSharp) ![Build](https://github.com/joelverhagen/TorSharp/workflows/Build/badge.svg)
+> *This is a fork of the excellent [TorSharp](https://github.com/joelverhagen/TorSharp) project by [Joel Verhagen](https://github.com/joelverhagen) and contributors.*
+
+## Changes of this fork
+
+- Introduced the [TorSharp.Mirror](https://github.com/nefarius/TorSharp.Mirror) long-term binary cache (default-on, SHA256-verified, nightly refresh)
+- Switched process management to [CliWrap](https://github.com/Tyrrrz/CliWrap) and removed all hand-rolled PInvoke code (`Desktop`, `Job`, `Process`, `FileStreamEventEmitter`, `SafeDesktopHandle`, `SafeJobHandle`)
+- Dropped `ToolRunnerType` enum and `VirtualDesktopName` setting — single built-in runner for all platforms
+- Modernized targets: `netstandard2.0`, `net8.0`, `net9.0`; dropped .NET Framework targets (use v2.x for Framework 4.6.2/4.7.2)
+- Hardened HTTP discovery: shared `TorSharp/{version}` User-Agent, 3× retry with exponential back-off, per-request discovery timeout
+- Fixed TAR extraction on non-seekable streams using BCL `TarReader` on .NET 7+
+- Added Alpine Docker sample and dropped broken Privoxy upstream sources (`privoxy.org` RSS, SourceForge RSS)
 
 ## Notice
 
@@ -38,7 +55,7 @@ dotnet add package Knapcode.TorSharp
 
 Starting on .NET 6, there is built-in support for SOCKS proxies. This means you don't need Privoxy. Thanks, .NET team!
 
-See [`samples/NativeSocksProxy/Program.cs`](https://github.com/joelverhagen/TorSharp/tree/master/samples/NativeSocksProxy/Program.cs) for a working sample.
+See [`samples/NativeSocksProxy/Program.cs`](https://github.com/nefarius/TorSharp/tree/master/samples/NativeSocksProxy/Program.cs) for a working sample.
 
 ```csharp
 var settings = new TorSharpSettings
@@ -79,7 +96,7 @@ using (var proxy = new TorSharpProxy(settings))
 
 ## Example using Privoxy
 
-See [`samples/TorSharp.Sandbox/Program.cs`](https://github.com/joelverhagen/TorSharp/tree/master/samples/TorSharp.Sandbox/Program.cs) for a working sample.
+See [`samples/TorSharp.Sandbox/Program.cs`](https://github.com/nefarius/TorSharp/tree/master/samples/TorSharp.Sandbox/Program.cs) for a working sample.
 
 ```csharp
 // configure
@@ -131,11 +148,11 @@ exception still occurs, here are the next steps:
    var settings = new TorSharpSettings { UseMirror = false };
    ```
 
-1. [Open an issue](https://github.com/joelverhagen/TorSharp/issues/new) so we can look into it.
+1. [Open an issue](https://github.com/nefarius/TorSharp/issues/new) so we can look into it.
 
 1. Work around the issue by setting up the tools manually and not using `TorSharpToolFetcher`. [See below](#how-do-i-set-up-the-tools-manually).
 
-1. Investigate the issue yourself. The [TorSharp.Sandbox](https://github.com/joelverhagen/TorSharp/blob/master/samples/TorSharp.Sandbox/Program.cs) project is helpful for this. Pull requests accepted 🏆.
+1. Investigate the issue yourself. The [TorSharp.Sandbox](https://github.com/nefarius/TorSharp/blob/master/samples/TorSharp.Sandbox/Program.cs) project is helpful for this. Pull requests accepted 🏆.
 
 ### How do I set up the tools manually?
 
@@ -155,7 +172,7 @@ If you don't want to use the `TorSharpToolFetcher` to download the latest versio
 
 ### Can I run multiple instances in parallel?
 
-Yes, you can. See this sample: [`samples/MultipleInstances/Program.cs`](https://github.com/joelverhagen/TorSharp/tree/master/samples/MultipleInstances/Program.cs).
+Yes, you can. See this sample: [`samples/MultipleInstances/Program.cs`](https://github.com/nefarius/TorSharp/tree/master/samples/MultipleInstances/Program.cs).
 
 However, you need to adhere to the following guidance.
 
@@ -182,7 +199,7 @@ In general, directory configuration values must be different from all of the oth
 
 By default, TorSharp lets the tools (Tor, Privoxy) log to the main process stdout and stderr. If you want to disable this behavior, set `TorSharpSettings.WriteToConsole` to `false`. If you want to intercept the output from the tools, attach to the `TorSharpProxy.OutputDataReceived` (for stdout) and `TorSharpProxy.ErrorDataReceived` (for stderr) events. In your event handler, you can log to some external sink or enqueue the line for processing. The event handlers are fired from a task using the default task scheduler so this blocks one of the shared worker threads. Don't do too much heavy lifting there, I guess! If you want to know which tool sent the log message, look at the `DataEventArgs.ExecutablePath` property.
 
-For a full sample, see this: [`samples/CustomLogging/Program.cs`](https://github.com/joelverhagen/TorSharp/blob/master/samples/CustomLogging/Program.cs).
+For a full sample, see this: [`samples/CustomLogging/Program.cs`](https://github.com/nefarius/TorSharp/blob/master/samples/CustomLogging/Program.cs).
 
 ### Privoxy fetched by TorSharp fails to start? Try installing missing dependencies.
 
