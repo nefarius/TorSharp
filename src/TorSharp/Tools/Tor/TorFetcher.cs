@@ -24,13 +24,14 @@ internal class TorFetcher : IFileFetcher
         DownloadableFile? downloadableFile;
         try
         {
-            downloadableFile = await HttpHelpers.RetryAsync(ct =>
-                FetcherHelpers.GetLatestDownloadableFileAsync(
-                    _httpClient,
-                    BaseUrl,
-                    fileNamePatternAndFormat.Pattern,
-                    fileNamePatternAndFormat.Format,
-                    ct)).ConfigureAwait(false);
+            // GetLatestDownloadableFileAsync calls GetStringAsync which already
+            // applies HttpHelpers.RetryAsync per request; no outer retry needed.
+            downloadableFile = await FetcherHelpers.GetLatestDownloadableFileAsync(
+                _httpClient,
+                BaseUrl,
+                fileNamePatternAndFormat.Pattern,
+                fileNamePatternAndFormat.Format,
+                CancellationToken.None).ConfigureAwait(false);
         }
         catch (TorSharpException)
         {
