@@ -96,7 +96,6 @@ internal static partial class WindowsUtility
         var startupInfo = new WindowsApi.STARTUPINFO();
         startupInfo.cb = Marshal.SizeOf(startupInfo);
         startupInfo.lpDesktop = desktopName;
-        startupInfo.dwFlags = WindowsApi.STARTF_USESTDHANDLES;
 
         var parentStdout = IntPtr.Zero;
         var childStdout = IntPtr.Zero;
@@ -120,7 +119,14 @@ internal static partial class WindowsUtility
                 startupInfo.hStdError = childStderr;
             }
 
-            string command = startInfo.FileName + " " + startInfo.Arguments;
+            // Only request handle redirection when we actually created inheritable pipes.
+            if (startupInfo.hStdOutput != IntPtr.Zero || startupInfo.hStdError != IntPtr.Zero)
+            {
+                startupInfo.dwFlags |= WindowsApi.STARTF_USESTDHANDLES;
+            }
+
+            // Quote the executable so paths containing spaces are parsed correctly by CreateProcess.
+            string command = $"\"{startInfo.FileName}\" {startInfo.Arguments}";
 
             bool result = WindowsApi.CreateProcess(null,
                 command,

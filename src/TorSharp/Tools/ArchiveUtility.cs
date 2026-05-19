@@ -142,7 +142,10 @@ internal class ArchiveUtility
             throw new TorSharpException("The Debian package's data section is expected to be a .tar.xz file.");
         }
 
-        if (fileStream.Position + dataSectionHeader.FileSize != fileStream.Length)
+        // AR members are padded to a 2-byte boundary; account for the trailing pad byte when the data size is odd.
+        var dataSectionPaddedSize = dataSectionHeader.FileSize + (dataSectionHeader.FileSize % 2);
+        if (fileStream.Position + dataSectionPaddedSize != fileStream.Length
+            && fileStream.Position + dataSectionHeader.FileSize != fileStream.Length)
         {
             throw new TorSharpException("The Debian package's data section is expected to reach the end of the .dev file.");
         }

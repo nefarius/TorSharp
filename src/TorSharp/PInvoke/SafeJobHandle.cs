@@ -13,6 +13,9 @@ internal class SafeJobHandle : SafeHandleZeroOrMinusOneIsInvalid
     protected override bool ReleaseHandle()
     {
         // ReleaseHandle must never throw: it is called from a finalizer / CER context.
-        return WindowsApi.TerminateJobObject(handle, uExitCode: 0);
+        // Terminate all processes in the job, then close the native handle.
+        var terminated = WindowsApi.TerminateJobObject(handle, uExitCode: 0);
+        var closed = WindowsApi.CloseHandle(handle);
+        return terminated && closed;
     }
 }
