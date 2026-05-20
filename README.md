@@ -16,7 +16,7 @@
 
 Use Tor for your C# HTTP clients via .NET's built-in SOCKS5 support. Privoxy is available as an opt-in HTTP-proxy front-end for legacy consumers.
 
-All you need is client code that can use a simple HTTP proxy.
+All you need is client code with SOCKS5 proxy support (built into .NET 6+). If your client only supports HTTP proxies, you can opt in to the bundled Privoxy front-end.
 
 ## Changes of this fork
 
