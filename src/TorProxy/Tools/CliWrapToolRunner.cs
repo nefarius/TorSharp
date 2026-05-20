@@ -117,12 +117,11 @@ internal sealed class CliWrapToolRunner : IToolRunner
                 {
                     throw new TorProxyException("Timed out waiting for a tool process to exit after cancellation.");
                 }
-
-                r.Task.GetAwaiter().GetResult();
             }
-            catch (OperationCanceledException)
+            catch (AggregateException ex) when (ex.InnerExceptions.All(e => e is OperationCanceledException))
             {
-                // Expected: graceful or forceful cancellation on shutdown.
+                // Expected: Task.Wait wraps OperationCanceledException/TaskCanceledException in
+                // AggregateException.  Swallow — graceful or forceful cancellation on shutdown.
             }
             // Any other exception propagates to Stop(), which aggregates and rethrows.
         }
