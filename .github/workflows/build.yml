@@ -143,6 +143,7 @@ jobs:
           name: packages
           path: |
             artifacts/TorProxy/bin/Release/*.nupkg
+            artifacts/Nefarius.Utilities.TorProxy.DependencyInjection/bin/Release/*.nupkg
 
   publish:
     needs: build
