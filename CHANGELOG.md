@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+* Add `net10.0` TFM to `Nefarius.Utilities.TorProxy` and `Nefarius.Utilities.TorProxy.DependencyInjection`; bump samples, Docker base images, and repo SDK pin to .NET 10.
+
 ## 7.0.0
 * Added `Nefarius.Utilities.TorProxy.DependencyInjection` companion package (`net8.0`/`net9.0`) with:
   * `AddTorProxy(configure, configureHostedService)` — single-call `IServiceCollection` registration that wires `TorProxySettings` (options pattern), `ITorProxy`, `ITorProxyToolFetcher`, and a `TorProxyHostedService`.

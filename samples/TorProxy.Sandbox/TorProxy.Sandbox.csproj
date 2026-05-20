@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <AssemblyName>Nefarius.Utilities.TorProxy.Sandbox</AssemblyName>
     <RootNamespace>Nefarius.Utilities.TorProxy.Sandbox</RootNamespace>
     <DelaySign>false</DelaySign>
