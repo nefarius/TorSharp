@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 
 namespace Nefarius.Utilities.TorProxy.Tests.TestSupport
 {
@@ -53,7 +52,6 @@ namespace Nefarius.Utilities.TorProxy.Tests.TestSupport
                 {
                     if (!ReservedPorts.Contains(port) && IsPortFree(port))
                     {
-                        Thread.Sleep(100);
                         ReservedPorts.Add(port);
                         return new ReservedPort(port);
                     }

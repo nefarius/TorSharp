@@ -49,7 +49,10 @@ namespace Nefarius.Utilities.TorProxy.Tests.TestSupport
                 }
             }
 
-            await semaphore.WaitAsync();
+            if (!await semaphore.WaitAsync(TimeSpan.FromMinutes(5)).ConfigureAwait(false))
+            {
+                throw new TimeoutException($"Timed out waiting to download '{requestUri}' (cache path: {cachePath}).");
+            }
             try
             {
                 if (!File.Exists(cachePath))

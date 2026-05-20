@@ -16,7 +16,7 @@ namespace Proxy.Listeners
             _source = new CancellationTokenSource();
 
             _listener.Start();
-            AcceptClients(_listener, handleClient, _source.Token);
+            _ = AcceptClientsAsync(_listener, handleClient, _source.Token);
         }
 
         public void Dispose()
@@ -25,13 +25,21 @@ namespace Proxy.Listeners
             GC.SuppressFinalize(this);
         }
 
-        private static async void AcceptClients(TcpListener listener, Action<TcpClient, CancellationToken> handleClient, CancellationToken token)
+        private static async Task AcceptClientsAsync(
+            TcpListener listener,
+            Action<TcpClient, CancellationToken> handleClient,
+            CancellationToken token)
         {
-            while (!token.IsCancellationRequested)
+            try
             {
-                var tcpClient = await listener.AcceptTcpClientAsync();
-
-                handleClient(tcpClient, token);
+                while (!token.IsCancellationRequested)
+                {
+                    var tcpClient = await listener.AcceptTcpClientAsync(token).ConfigureAwait(false);
+                    handleClient(tcpClient, token);
+                }
+            }
+            catch (OperationCanceledException) when (token.IsCancellationRequested)
+            {
             }
         }
 
@@ -39,17 +47,17 @@ namespace Proxy.Listeners
         {
             if (disposing)
             {
+                if (_listener != null)
+                {
+                    _listener.Stop();
+                    _listener = null;
+                }
+
                 if (_source != null)
                 {
                     _source.Cancel();
                     _source.Dispose();
                     _source = null;
-                }
-
-                if (_listener != null)
-                {
-                    _listener.Stop();
-                    _listener = null;
                 }
             }
         }

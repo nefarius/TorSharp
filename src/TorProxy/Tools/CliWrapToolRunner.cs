@@ -113,6 +113,11 @@ internal sealed class CliWrapToolRunner : IToolRunner
 
             try
             {
+                if (!r.Task.Task.Wait(TimeSpan.FromSeconds(10)))
+                {
+                    throw new TorProxyException("Timed out waiting for a tool process to exit after cancellation.");
+                }
+
                 r.Task.GetAwaiter().GetResult();
             }
             catch (OperationCanceledException)
