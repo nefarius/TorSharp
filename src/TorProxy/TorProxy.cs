@@ -83,6 +83,7 @@ public class TorProxy : ITorProxy
     public TorProxy(TorProxySettings settings, ILoggerFactory loggerFactory)
     {
         _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
         _torPasswordHasher = new TorPasswordHasher(new RandomFactory());
 
         _toolRunner = new CliWrapToolRunner();

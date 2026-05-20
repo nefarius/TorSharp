@@ -29,7 +29,7 @@ public static class TorProxyHttpClientBuilderExtensions
             var settings = sp.GetRequiredService<TorProxySettings>();
             return new System.Net.Http.SocketsHttpHandler
             {
-                Proxy = new WebProxy(new Uri("socks5://localhost:" + settings.TorSettings.SocksPort)),
+                Proxy = new WebProxy(new Uri($"socks5://localhost:{settings.TorSettings.SocksPort}")),
                 UseProxy = true,
             };
         });

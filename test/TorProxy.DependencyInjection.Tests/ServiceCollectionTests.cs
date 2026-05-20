@@ -1,10 +1,8 @@
+using System.Linq;
 using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using NSubstitute;
 using Nefarius.Utilities.TorProxy;
 using Nefarius.Utilities.TorProxy.DependencyInjection;
 using Xunit;
@@ -20,15 +18,11 @@ public class ServiceCollectionTests
         services.AddLogging();
         services.AddTorProxy(o => o.WriteToConsole = false);
 
-        // Replace the real ITorProxy with a substitute so no binary extraction runs.
-        var fakeProxy = Substitute.For<ITorProxy>();
-        services.AddSingleton(fakeProxy);
+        // Inspect the descriptor directly — no need to build a container or execute any tool code.
+        var descriptor = services.FirstOrDefault(d => d.ServiceType == typeof(ITorProxy));
 
-        var sp = services.BuildServiceProvider();
-        var resolved1 = sp.GetRequiredService<ITorProxy>();
-        var resolved2 = sp.GetRequiredService<ITorProxy>();
-
-        Assert.Same(resolved1, resolved2);
+        Assert.NotNull(descriptor);
+        Assert.Equal(ServiceLifetime.Singleton, descriptor.Lifetime);
     }
 
     [Fact]
@@ -61,11 +55,9 @@ public class ServiceCollectionTests
             o.TorSettings.SocksPort = customPort;
         });
 
-        // Replace real proxy to prevent actual tool execution.
-        services.AddSingleton(Substitute.For<ITorProxy>());
-
+        // Resolve TorProxySettings via IOptions; no proxy/tool code runs.
         var sp = services.BuildServiceProvider();
-        var settings = sp.GetRequiredService<TorProxySettings>();
+        var settings = sp.GetRequiredService<IOptions<TorProxySettings>>().Value;
 
         Assert.Equal(customPort, settings.TorSettings.SocksPort);
     }

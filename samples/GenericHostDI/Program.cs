@@ -11,11 +11,9 @@
 // To run:
 //   dotnet run --project samples/GenericHostDI
 
-using System.Net;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Nefarius.Utilities.TorProxy;
 using Nefarius.Utilities.TorProxy.DependencyInjection;
 
 var host = Host.CreateDefaultBuilder(args)
@@ -57,11 +55,16 @@ internal sealed class DemoWorker : BackgroundService
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<DemoWorker> _logger;
+    private readonly IHostApplicationLifetime _appLifetime;
 
-    public DemoWorker(IHttpClientFactory httpClientFactory, ILogger<DemoWorker> logger)
+    public DemoWorker(
+        IHttpClientFactory httpClientFactory,
+        ILogger<DemoWorker> logger,
+        IHostApplicationLifetime appLifetime)
     {
         _httpClientFactory = httpClientFactory;
         _logger = logger;
+        _appLifetime = appLifetime;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -77,5 +80,8 @@ internal sealed class DemoWorker : BackgroundService
         _logger.LogInformation("IP direct:     {IP}", directIp.Trim());
 
         _logger.LogInformation("Same IP? {Same}", string.Equals(torIp.Trim(), directIp.Trim()));
+
+        // Work is done — shut the host down cleanly.
+        _appLifetime.StopApplication();
     }
 }

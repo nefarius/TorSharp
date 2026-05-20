@@ -55,13 +55,13 @@ This product is produced independently from the Tor® anonymity software and car
 
 Core library (imperative API, `netstandard2.0` + `net8.0` + `net9.0`):
 
-```
+```bash
 dotnet add package Nefarius.Utilities.TorProxy
 ```
 
 ASP.NET Core / Generic Host integration (`net8.0` + `net9.0`):
 
-```
+```bash
 dotnet add package Nefarius.Utilities.TorProxy.DependencyInjection
 ```
 
@@ -114,7 +114,7 @@ builder.Services.AddTorProxy(o =>
 {
     o.PrivoxySettings.Disable = true;      // use SOCKS5 directly (default)
     o.WriteToConsole = false;              // let ILogger handle output
-    // o.MinTorLogLevel = LogLevel.Information;   // optional: suppress Debug lines
+    // o.MinTorLogLevel = LogLevel.Information;   // optional: allow Information and above only (drops Trace and Debug)
 });
 
 // Route requests through Tor SOCKS5 with a single call.
@@ -152,7 +152,7 @@ You can suppress very chatty Tor log levels through settings:
 ```csharp
 builder.Services.AddTorProxy(o =>
 {
-    o.MinTorLogLevel = LogLevel.Information; // drop Debug/Info Tor lines
+    o.MinTorLogLevel = LogLevel.Information; // allow Information and above; drops Trace and Debug
 });
 ```
 

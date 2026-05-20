@@ -20,8 +20,12 @@ public class HostedServiceTests
         var sut = new TorProxyHostedService(proxy, fetcher, options);
         await sut.StartAsync(CancellationToken.None);
 
-        await fetcher.Received(1).FetchAsync();
-        await proxy.Received(1).ConfigureAndStartAsync();
+        // Verify both were called and that FetchAsync ran before ConfigureAndStartAsync.
+        Received.InOrder(() =>
+        {
+            fetcher.FetchAsync();
+            proxy.ConfigureAndStartAsync();
+        });
     }
 
     [Fact]
