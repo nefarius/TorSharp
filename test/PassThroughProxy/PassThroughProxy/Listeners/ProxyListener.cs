@@ -41,11 +41,11 @@ namespace Proxy.Listeners
             catch (OperationCanceledException) when (token.IsCancellationRequested)
             {
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException) when (token.IsCancellationRequested)
             {
                 // Listener was stopped before/alongside cancellation.
             }
-            catch (SocketException)
+            catch (SocketException) when (token.IsCancellationRequested)
             {
                 // Listener was stopped before/alongside cancellation.
             }
