@@ -11,8 +11,8 @@
 ![.NET Standard 2.0](https://img.shields.io/badge/.NET-Standard%202.0-blue)
 ![.NET 8](https://img.shields.io/badge/.NET-8-blue)
 ![.NET 9](https://img.shields.io/badge/.NET-9-blue)
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/nefarius/TorSharp?label=Core&logo=nuget)](https://github.com/nefarius/TorSharp/pkgs/nuget/Nefarius.Utilities.TorProxy)
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/nefarius/TorSharp?label=DependencyInjection&logo=nuget)](https://github.com/nefarius/TorSharp/pkgs/nuget/Nefarius.Utilities.TorProxy.DependencyInjection)
+[![Nefarius.Utilities.TorProxy on GitHub Packages](https://img.shields.io/badge/GitHub_Packages-Nefarius.Utilities.TorProxy-blue?logo=nuget)](https://github.com/nefarius/TorSharp/pkgs/nuget/Nefarius.Utilities.TorProxy)
+[![Nefarius.Utilities.TorProxy.DependencyInjection on GitHub Packages](https://img.shields.io/badge/GitHub_Packages-Nefarius.Utilities.TorProxy.DependencyInjection-blue?logo=nuget)](https://github.com/nefarius/TorSharp/pkgs/nuget/Nefarius.Utilities.TorProxy.DependencyInjection)
 
 Use Tor for your C# HTTP clients via .NET's built-in SOCKS5 support. Privoxy is available as an opt-in HTTP-proxy front-end for legacy consumers.
 
