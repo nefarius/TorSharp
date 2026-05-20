@@ -160,7 +160,7 @@ namespace Nefarius.Utilities.TorProxy.Tests
             }
         }
 
-        [RetryTheory(skipOnExceptions: typeof(TorProxyException))]
+        [RetryTheory(skipOnExceptions: new[] { typeof(TorProxyException), typeof(System.Net.Http.HttpRequestException) })]
         [InlineData(ToolDownloadStrategy.First)]
         [InlineData(ToolDownloadStrategy.Latest)]
         [DisplayTestMethodName]

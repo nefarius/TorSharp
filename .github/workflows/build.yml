@@ -64,9 +64,9 @@ jobs:
           # Monthly bucket: same key for the whole calendar month so hot runs
           # reuse cached binaries.  restore-keys falls back to any prior month
           # so the first run of a new month still benefits from old downloads.
-          key: ${{ matrix.os }}-torproxy-test-${{ hashFiles('.github/workflows/build.yml') }}-${{ steps.cache-month.outputs.month }}
+          key: ${{ matrix.os }}-torproxy-test-${{ hashFiles('src/TorProxy/TorProxy.csproj', 'Directory.Packages.props') }}-${{ steps.cache-month.outputs.month }}
           restore-keys: |
-            ${{ matrix.os }}-torproxy-test-${{ hashFiles('.github/workflows/build.yml') }}-
+            ${{ matrix.os }}-torproxy-test-${{ hashFiles('src/TorProxy/TorProxy.csproj', 'Directory.Packages.props') }}-
             ${{ matrix.os }}-torproxy-test-
 
       - name: Setup .NET
