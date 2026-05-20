@@ -36,11 +36,11 @@ internal static class TorLogLineParser
         var level = match.Groups["lvl"].Value.ToLowerInvariant() switch
         {
             "debug" => LogLevel.Debug,
-            "info"  => LogLevel.Debug,     // Tor "info" is very chatty; map to Debug
+            "info" => LogLevel.Debug,     // Tor "info" is very chatty; map to Debug
             "notice" => LogLevel.Information,
-            "warn"  => LogLevel.Warning,
-            "err"   => LogLevel.Error,
-            _       => fallbackLevel,
+            "warn" => LogLevel.Warning,
+            "err" => LogLevel.Error,
+            _ => fallbackLevel,
         };
 
         return (level, match.Groups["msg"].Value);

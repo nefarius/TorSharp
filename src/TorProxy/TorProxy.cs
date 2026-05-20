@@ -101,7 +101,7 @@ public class TorProxy : ITorProxy
         {
             var toolLogger = new ToolLogger(loggerFactory, settings);
             OutputDataReceived += (_, e) => toolLogger.HandleLine(e, isStderr: false);
-            ErrorDataReceived  += (_, e) => toolLogger.HandleLine(e, isStderr: true);
+            ErrorDataReceived += (_, e) => toolLogger.HandleLine(e, isStderr: true);
         }
     }
 

@@ -36,13 +36,13 @@ internal static class PrivoxyLogLineParser
 
         var level = match.Groups["lvl"].Value.ToLowerInvariant() switch
         {
-            "fatal"   => LogLevel.Critical,
-            "error"   => LogLevel.Error,
+            "fatal" => LogLevel.Critical,
+            "error" => LogLevel.Error,
             "warning" => LogLevel.Warning,
-            "warn"    => LogLevel.Warning,
-            "info"    => LogLevel.Information,
-            "debug"   => LogLevel.Debug,
-            _         => fallbackLevel,
+            "warn" => LogLevel.Warning,
+            "info" => LogLevel.Information,
+            "debug" => LogLevel.Debug,
+            _ => fallbackLevel,
         };
 
         return (level, match.Groups["msg"].Value);
