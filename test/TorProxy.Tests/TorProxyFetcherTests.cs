@@ -168,8 +168,8 @@ namespace Nefarius.Utilities.TorProxy.Tests
         {
             using (var te = TestEnvironment.Initialize(_output))
             {
-                // Arrange
-                var settings = te.BuildSettings();
+                // Arrange — opt in to Privoxy so its update lifecycle is covered by this test
+                var settings = te.BuildSettingsWithPrivoxy();
                 settings.ToolDownloadStrategy = strategy;
 
                 using (var httpClientHandler = new HttpClientHandler())
@@ -214,8 +214,8 @@ namespace Nefarius.Utilities.TorProxy.Tests
         {
             using (var te = TestEnvironment.Initialize(_output))
             {
-                // Arrange
-                var settings = te.BuildSettings();
+                // Arrange — opt in to Privoxy so the assertion that it exists locally holds
+                var settings = te.BuildSettingsWithPrivoxy();
                 settings.ReloadTools = true;
                 settings.UseExistingTools = true;
 

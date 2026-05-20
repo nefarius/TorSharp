@@ -16,10 +16,6 @@ namespace Nefarius.Utilities.TorProxy.Sandbox
             {
                 ZippedToolsDirectory = Path.Combine(Path.GetTempPath(), "TorZipped"),
                 ExtractedToolsDirectory = Path.Combine(Path.GetTempPath(), "TorExtracted"),
-                PrivoxySettings =
-                {
-                    Port = 18118,
-                },
                 TorSettings =
                 {
                     SocksPort = 19050,
@@ -45,7 +41,7 @@ namespace Nefarius.Utilities.TorProxy.Sandbox
             {
                 var handler = new HttpClientHandler
                 {
-                    Proxy = new WebProxy(new Uri("http://localhost:" + settings.PrivoxySettings.Port))
+                    Proxy = new WebProxy(new Uri("socks5://localhost:" + settings.TorSettings.SocksPort))
                 };
 
                 using (handler)

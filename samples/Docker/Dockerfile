@@ -20,8 +20,6 @@ COPY --from=publish /app .
 
 RUN cat /etc/os-release
 
-RUN apt-get update -y && apt-get install -y --no-install-recommends libbrotli1 libmbedtls14 && apt-get clean && rm -rf /var/lib/apt/lists/*
-
 RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 RUN chown -R appuser:appgroup /app
 USER appuser

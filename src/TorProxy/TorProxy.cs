@@ -32,8 +32,11 @@ public interface ITorProxy : IDisposable
 }
 
 /// <summary>
-/// The main proxy controller implementation. This class handles extracting the tools (Privoxy and Tor),
-/// configuring them, starting them, and stopping them.
+/// The main proxy controller implementation. This class handles extracting the tools (Tor, and optionally
+/// Privoxy), configuring them, starting them, and stopping them.
+/// Privoxy is opt-in: set <see cref="TorProxySettings.PrivoxySettings"/>.<see cref="TorProxyPrivoxySettings.Disable"/>
+/// to <c>false</c> to enable the HTTP-proxy front-end. By default only Tor is started and the SOCKS5 port is
+/// used for outbound connections.
 /// </summary>
 public class TorProxy : ITorProxy
 {

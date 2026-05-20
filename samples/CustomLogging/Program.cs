@@ -44,7 +44,7 @@ using (var proxy = new TorProxy(settings))
 
     var handler = new HttpClientHandler
     {
-        Proxy = new WebProxy(new Uri("http://localhost:" + settings.PrivoxySettings.Port)),
+        Proxy = new WebProxy(new Uri("socks5://localhost:" + settings.TorSettings.SocksPort)),
     };
 
     using (handler)
@@ -63,7 +63,7 @@ using (var proxy = new TorProxy(settings))
     Console.WriteLine(string.Join(Environment.NewLine, torOutput.Select(x => "  " + x)).TrimEnd());
     Console.WriteLine();
 
-    Console.WriteLine("==== Privoxy output ==== ");
+    Console.WriteLine("==== Privoxy output (empty when Privoxy is disabled, which is the default) ==== ");
     Console.WriteLine(string.Join(Environment.NewLine, privoxyOutput.Select(x => "  " + x)).TrimEnd());
     Console.WriteLine();
 }

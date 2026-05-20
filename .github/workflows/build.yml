@@ -44,6 +44,8 @@ jobs:
       TORPROXY_TEST_CACHE: ${{ github.workspace }}/tests/cache
       # Set only on the scheduled upstream-health run so the fetcher tests
       # exercise the upstream scrapers directly instead of the mirror.
+      # Also gates the Privoxy runtime-dep install step — those libs are only
+      # needed when the Privoxy-enabled E2E path runs (upstream/scheduled builds).
       TORPROXY_RUN_UPSTREAM_TESTS: ${{ github.event_name == 'schedule' && 'true' || '' }}
 
     steps:
@@ -80,7 +82,7 @@ jobs:
         run: dotnet build TorProxy.sln --configuration Release --no-restore
 
       - name: Install Privoxy runtime dependencies (Linux)
-        if: runner.os == 'Linux'
+        if: runner.os == 'Linux' && env.TORPROXY_RUN_UPSTREAM_TESTS == 'true'
         run: |
           MANIFEST_URL="https://github.com/nefarius/TorSharp.Mirror/releases/latest/download/manifest.json"
           # Fetch manifest; emit a visible warning (not a silent swallow) on failure.

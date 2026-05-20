@@ -20,7 +20,7 @@ COPY --from=publish /app .
 
 RUN cat /etc/os-release
 
-RUN apk add --no-cache tor privoxy
+RUN apk add --no-cache tor
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 RUN chown -R appuser:appgroup /app

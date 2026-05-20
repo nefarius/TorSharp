@@ -11,12 +11,12 @@
     <Version>$(TorProxyVersion)</Version>
     <Authors>Joel Verhagen, Nefarius</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Description>Fork of Knapcode.TorSharp by Joel Verhagen. Use Tor for your C# HTTP clients. Use Privoxy or .NET 8+ SOCKS support to proxy HTTP traffic. Also supports netstandard2.0.</Description>
+    <Description>Fork of Knapcode.TorSharp by Joel Verhagen. Use Tor for your C# HTTP clients via .NET's built-in SOCKS5 support. A Privoxy HTTP-proxy front-end remains available (opt-in) for netstandard2.0 and legacy HTTP-proxy consumers.</Description>
     <PackageProjectUrl>https://github.com/nefarius/TorSharp</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Copyright>Copyright © 2020 Joel Verhagen, © 2024-2026 Nefarius (fork contributions)</Copyright>
-    <PackageTags>tor proxy privoxy http socks socks5 onion router https anonymize anonymous</PackageTags>
+    <PackageTags>tor proxy http socks socks5 onion router https anonymize anonymous</PackageTags>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <DebugType>embedded</DebugType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>

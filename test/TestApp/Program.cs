@@ -25,18 +25,14 @@ if (!bool.TryParse(args[0], out var writeToConsole))
     return 1;
 }
 
-using var reservedPorts = ReservedPorts.Reserve(3);
+using var reservedPorts = ReservedPorts.Reserve(2);
 
 var settings = new TorProxySettings
 {
-    PrivoxySettings =
-    {
-        Port = reservedPorts.Ports[0],
-    },
     TorSettings =
     {
-        SocksPort = reservedPorts.Ports[1],
-        ControlPort = reservedPorts.Ports[2],
+        SocksPort = reservedPorts.Ports[0],
+        ControlPort = reservedPorts.Ports[1],
     },
     WriteToConsole = writeToConsole,
     ZippedToolsDirectory = args[1],
@@ -53,7 +49,7 @@ using (var proxy = new TorProxy(settings))
 {
     var handler = new HttpClientHandler
     {
-        Proxy = new WebProxy(new Uri("http://localhost:" + settings.PrivoxySettings.Port))
+        Proxy = new WebProxy(new Uri("socks5://localhost:" + settings.TorSettings.SocksPort))
     };
 
     using (handler)
