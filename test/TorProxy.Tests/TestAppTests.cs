@@ -33,8 +33,8 @@ namespace Nefarius.Utilities.TorProxy.Tests
         private string ProjectDir { get; }
 
         [RetryTheory]
-        [InlineData(false, "net9.0")]
-        [InlineData(true, "net9.0")]
+        [InlineData(false, "net10.0")]
+        [InlineData(true, "net10.0")]
         [DisplayTestMethodName]
         public void ToolRunner_OnlyWritesToStdoutIfSpecified(bool writeToConsole, string framework)
         {

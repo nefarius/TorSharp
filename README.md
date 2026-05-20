@@ -11,6 +11,7 @@
 ![.NET Standard 2.0](https://img.shields.io/badge/.NET-Standard%202.0-blue)
 ![.NET 8](https://img.shields.io/badge/.NET-8-blue)
 ![.NET 9](https://img.shields.io/badge/.NET-9-blue)
+![.NET 10](https://img.shields.io/badge/.NET-10-blue)
 [![Nefarius.Utilities.TorProxy on GitHub Packages](https://img.shields.io/badge/GitHub_Packages-Nefarius.Utilities.TorProxy-blue?logo=nuget)](https://github.com/nefarius/TorSharp/pkgs/nuget/Nefarius.Utilities.TorProxy)
 [![Nefarius.Utilities.TorProxy.DependencyInjection on GitHub Packages](https://img.shields.io/badge/GitHub_Packages-Nefarius.Utilities.TorProxy.DependencyInjection-blue?logo=nuget)](https://github.com/nefarius/TorSharp/pkgs/nuget/Nefarius.Utilities.TorProxy.DependencyInjection)
 
@@ -23,7 +24,7 @@ All you need is client code with SOCKS5 proxy support (built into .NET 6+). If y
 - Introduced the [TorSharp.Mirror](https://github.com/nefarius/TorSharp.Mirror) long-term binary cache (default-on, SHA256-verified, nightly refresh)
 - Switched process management to [CliWrap](https://github.com/Tyrrrz/CliWrap) and removed all hand-rolled PInvoke code (`Desktop`, `Job`, `Process`, `FileStreamEventEmitter`, `SafeDesktopHandle`, `SafeJobHandle`)
 - Dropped `ToolRunnerType` enum and `VirtualDesktopName` setting — single built-in runner for all platforms
-- Modernized targets: `netstandard2.0`, `net8.0`, `net9.0`; dropped .NET Framework targets (use v2.x for Framework 4.6.2/4.7.2)
+- Modernized targets: `netstandard2.0`, `net8.0`, `net9.0`, `net10.0`; dropped .NET Framework targets (use v2.x for Framework 4.6.2/4.7.2)
 - Hardened HTTP discovery: shared `Nefarius.Utilities.TorProxy/{version}` User-Agent, 3× retry with exponential back-off, per-request discovery timeout
 - Fixed TAR extraction on non-seekable streams using BCL `TarReader` on .NET 7+
 - Added Alpine Docker sample and dropped broken Privoxy upstream sources (`privoxy.org` RSS, SourceForge RSS)
@@ -36,7 +37,7 @@ This product is produced independently from the Tor® anonymity software and car
 ## Details
 
 - Supports:
-  - **.NET** (.NET Standard 2.0, .NET 8, .NET 9)
+  - **.NET** (.NET Standard 2.0, .NET 8, .NET 9, .NET 10)
   - ❌ **.NET Framework** targets have been dropped as of v3.0.0. Use v2.x for .NET Framework 4.6.2/4.7.2 support.
   - **Windows**
     - ✔️ Windows 10 / Windows Server 2019 and later
@@ -53,13 +54,13 @@ This product is produced independently from the Tor® anonymity software and car
 
 ## Install
 
-Core library (imperative API, `netstandard2.0` + `net8.0` + `net9.0`):
+Core library (imperative API, `netstandard2.0` + `net8.0` + `net9.0` + `net10.0`):
 
 ```bash
 dotnet add package Nefarius.Utilities.TorProxy
 ```
 
-ASP.NET Core / Generic Host integration (`net8.0` + `net9.0`):
+ASP.NET Core / Generic Host integration (`net8.0` + `net9.0` + `net10.0`):
 
 ```bash
 dotnet add package Nefarius.Utilities.TorProxy.DependencyInjection

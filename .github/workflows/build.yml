@@ -74,6 +74,7 @@ jobs:
         with:
           dotnet-version: |
             9.0.x
+            10.0.x
 
       - name: Restore
         run: dotnet restore TorProxy.sln
@@ -118,14 +119,21 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_sample }}
         run: |
           date
-          dotnet run --project samples/TorProxy.Sandbox --framework net9.0
+          dotnet run --project samples/TorProxy.Sandbox --framework net10.0
 
       - name: Setup tmate session (Linux)
         if: ${{ runner.os == 'Linux' && github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
         uses: mxschmitt/action-tmate@c0afd6f790e3a5564914980036ebf83216678101 # v3
 
       - name: Test
-        run: dotnet test TorProxy.sln --configuration Release --no-restore --no-build --logger "console;verbosity=normal" --blame-hang-timeout 30m
+        shell: bash
+        run: |
+          # Run each target framework sequentially so parallel Tor/E2E hosts do not
+          # exhaust ports or contend on the shared test download cache (net10.0 was
+          # hanging at the first HttpCollection test when all three TFMs ran at once).
+          for framework in net8.0 net9.0 net10.0; do
+            dotnet test TorProxy.sln --configuration Release --no-restore --no-build --framework "$framework" --logger "console;verbosity=normal" --blame-hang-timeout 30m
+          done
 
       - name: Format
         run: dotnet format TorProxy.sln --no-restore --verify-no-changes
@@ -162,6 +170,7 @@ jobs:
         with:
           dotnet-version: |
             9.0.x
+            10.0.x
 
       - name: Download artifacts
         uses: actions/download-artifact@v4

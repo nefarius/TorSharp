@@ -16,7 +16,7 @@ namespace Proxy.Listeners
             _source = new CancellationTokenSource();
 
             _listener.Start();
-            AcceptClients(_listener, handleClient, _source.Token);
+            _ = AcceptClientsAsync(_listener, handleClient, _source.Token);
         }
 
         public void Dispose()
@@ -25,13 +25,29 @@ namespace Proxy.Listeners
             GC.SuppressFinalize(this);
         }
 
-        private static async void AcceptClients(TcpListener listener, Action<TcpClient, CancellationToken> handleClient, CancellationToken token)
+        private static async Task AcceptClientsAsync(
+            TcpListener listener,
+            Action<TcpClient, CancellationToken> handleClient,
+            CancellationToken token)
         {
-            while (!token.IsCancellationRequested)
+            try
             {
-                var tcpClient = await listener.AcceptTcpClientAsync();
-
-                handleClient(tcpClient, token);
+                while (!token.IsCancellationRequested)
+                {
+                    var tcpClient = await listener.AcceptTcpClientAsync(token).ConfigureAwait(false);
+                    handleClient(tcpClient, token);
+                }
+            }
+            catch (OperationCanceledException) when (token.IsCancellationRequested)
+            {
+            }
+            catch (ObjectDisposedException) when (token.IsCancellationRequested)
+            {
+                // Listener was stopped before/alongside cancellation.
+            }
+            catch (SocketException) when (token.IsCancellationRequested)
+            {
+                // Listener was stopped before/alongside cancellation.
             }
         }
 
@@ -39,6 +55,8 @@ namespace Proxy.Listeners
         {
             if (disposing)
             {
+                // Cancel first so AcceptTcpClientAsync sees the token before the listener
+                // is torn down, avoiding SocketException / ObjectDisposedException races.
                 if (_source != null)
                 {
                     _source.Cancel();
