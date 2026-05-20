@@ -11,5 +11,12 @@ namespace Nefarius.Utilities.TorProxy.Tests
         {
             Assert.Equal(18118, new TorProxyPrivoxySettings().Port);
         }
+
+        [Fact]
+        [DisplayTestMethodName]
+        public void IsDisabledByDefault()
+        {
+            Assert.True(new TorProxyPrivoxySettings().Disable);
+        }
     }
 }

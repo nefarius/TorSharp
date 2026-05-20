@@ -47,16 +47,14 @@ namespace Nefarius.Utilities.TorProxy.Tests
             }
         }
 
-#if NET6_0_OR_GREATER
         [RetryFact]
         [DisplayTestMethodName]
-        public async Task PrivoxyCanBeDisabled()
+        public async Task PrivoxyIsOptInAndStillWorks()
         {
             using (var te = TestEnvironment.Initialize(_output))
             {
-                // Arrange
-                var settings = te.BuildSettings();
-                settings.PrivoxySettings.Disable = true;
+                // Arrange — explicitly opt in to Privoxy
+                var settings = te.BuildSettingsWithPrivoxy();
 
                 // Act
                 using (var httpClient = new HttpClient())
@@ -70,9 +68,13 @@ namespace Nefarius.Utilities.TorProxy.Tests
                     await proxy.ConfigureAndStartAsync();
                     _output.WriteLine("The proxy has been started");
 
+                    // Assert Privoxy files are present (both zipped and extracted)
+                    Assert.Contains(Directory.EnumerateFileSystemEntries(settings.ZippedToolsDirectory), e => e.Contains("privoxy", StringComparison.OrdinalIgnoreCase));
+                    Assert.Contains(Directory.EnumerateFileSystemEntries(settings.ExtractedToolsDirectory), e => e.Contains("privoxy", StringComparison.OrdinalIgnoreCase));
+
                     var isTor = await SendProxiedRequestAsync(
                         proxy,
-                        "Checking if we're using Tor",
+                        "Checking if we're using Tor via Privoxy HTTP proxy",
                         async proxiedHttpClient =>
                         {
                             var torCheck = await proxiedHttpClient.GetStringAsync("https://check.torproject.org/api/ip");
@@ -80,30 +82,23 @@ namespace Nefarius.Utilities.TorProxy.Tests
                             var json = JsonConvert.DeserializeObject<JObject>(torCheck);
                             return json!.Value<bool>("IsTor");
                         },
-                        () => new SocketsHttpHandler
+                        () => new HttpClientHandler
                         {
-                            Proxy = new WebProxy("socks5://localhost:" + settings.TorSettings.SocksPort)
+                            Proxy = new WebProxy("http://localhost:" + settings.PrivoxySettings.Port)
                         });
 
-                    // Assert
                     Assert.True(isTor);
-                    Assert.All(Directory.EnumerateFileSystemEntries(settings.ZippedToolsDirectory), e => Assert.DoesNotContain("privoxy", e, StringComparison.OrdinalIgnoreCase));
-                    Assert.All(Directory.EnumerateFileSystemEntries(settings.ExtractedToolsDirectory), e => Assert.DoesNotContain("privoxy", e, StringComparison.OrdinalIgnoreCase));
 
-                    // Verify the Privoxy port is free — if Privoxy had been started by this test
-                    // it would still be bound here (proxy.Stop() is called by the using-block
-                    // exit AFTER these assertions).  Checking by port instead of scanning
-                    // Process.GetProcesses() avoids false positives when parallel test assemblies
-                    // (net8.0 / net9.0) run simultaneously and one sees the other's Privoxy.
+                    // Verify the Privoxy port is released after stop. proxy.Stop() is called by
+                    // the using-block exit AFTER these assertions, so we check that the port is
+                    // currently bound (i.e. Privoxy is actually running).
                     using (var probe = new TcpListener(IPAddress.Loopback, settings.PrivoxySettings.Port))
                     {
-                        probe.Start();
-                        probe.Stop();
+                        Assert.Throws<SocketException>(() => { probe.Start(); probe.Stop(); });
                     }
                 }
             }
         }
-#endif
 
         [RetryFact]
         [DisplayTestMethodName]
@@ -244,7 +239,6 @@ namespace Nefarius.Utilities.TorProxy.Tests
             {
                 // Arrange
                 var settings = te.BuildSettings();
-                settings.PrivoxySettings.Disable = true;
 
                 using (var httpClient = new HttpClient())
                 using (var proxy = new TorProxy(settings))
@@ -319,10 +313,6 @@ namespace Nefarius.Utilities.TorProxy.Tests
                 // Assert
                 Assert.NotEmpty(output);
                 Assert.Contains(output, x => Path.GetFileName(x.ExecutablePath).StartsWith("tor", StringComparison.OrdinalIgnoreCase));
-                if (settings.OSPlatform != TorProxyOSPlatform.Windows)
-                {
-                    Assert.Contains(output, x => Path.GetFileName(x.ExecutablePath).StartsWith("privoxy", StringComparison.OrdinalIgnoreCase));
-                }
                 Assert.Contains(output, x => x.Data != null && x.Data.Contains($"Opening Socks listener on 127.0.0.1:{settings.TorSettings.SocksPort}"));
             }
         }
@@ -366,11 +356,11 @@ namespace Nefarius.Utilities.TorProxy.Tests
                 var zippedDir = new DirectoryInfo(settings.ZippedToolsDirectory);
                 Assert.True(zippedDir.Exists, "The zipped tools directory should exist.");
                 Assert.Empty(zippedDir.EnumerateDirectories());
-                Assert.Equal(2, zippedDir.EnumerateFiles().Count());
+                Assert.Single(zippedDir.EnumerateFiles());
 
                 var extractedDir = new DirectoryInfo(settings.ExtractedToolsDirectory);
                 Assert.True(extractedDir.Exists, "The extracted tools directory should exist.");
-                Assert.Equal(2, extractedDir.EnumerateDirectories().Count());
+                Assert.Single(extractedDir.EnumerateDirectories());
                 Assert.Empty(extractedDir.EnumerateFiles());
             }
         }
@@ -399,9 +389,9 @@ namespace Nefarius.Utilities.TorProxy.Tests
                 proxy,
                 operation,
                 executeAsync,
-                () => new HttpClientHandler
+                () => new SocketsHttpHandler
                 {
-                    Proxy = new WebProxy(new Uri("http://localhost:" + settings.PrivoxySettings.Port))
+                    Proxy = new WebProxy(new Uri("socks5://localhost:" + settings.TorSettings.SocksPort))
                 });
         }
 

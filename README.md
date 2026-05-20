@@ -14,7 +14,7 @@
 [![NuGet Version](https://img.shields.io/nuget/v/Nefarius.Utilities.TorProxy)](https://www.nuget.org/packages/Nefarius.Utilities.TorProxy)
 [![NuGet downloads](https://img.shields.io/nuget/dt/Nefarius.Utilities.TorProxy)](https://www.nuget.org/packages/Nefarius.Utilities.TorProxy)
 
-Use Tor for your C# HTTP clients. Use Privoxy or .NET 6+ SOCKS support to proxy HTTP traffic.
+Use Tor for your C# HTTP clients via .NET's built-in SOCKS5 support. Privoxy is available as an opt-in HTTP-proxy front-end for legacy consumers.
 
 All you need is client code that can use a simple HTTP proxy.
 
@@ -46,10 +46,10 @@ This product is produced independently from the Tor® anonymity software and car
     - ✔️ Ubuntu 24.04
     - ✔️ Debian 11 / Debian 12
     - ⚠️ CentOS/RHEL supported via `ExecutablePathOverride` ([see below](#centos-7))
-    - ⚠️ Alpine supported via `ExecutablePathOverride` (must run `apk add tor privoxy` or `apk add tor` and disable Privoxy)
+    - ⚠️ Alpine supported via `ExecutablePathOverride` (run `apk add tor`; add `privoxy` and set `PrivoxySettings.Disable = false` only when the HTTP-proxy front-end is needed)
   - ❌ Mac OS X support is not planned.
-- Uses Privoxy to redirect HTTP proxy traffic to Tor (can be disabled).
-- Optionally downloads the latest version of Tor and Privoxy for you.
+- Tor SOCKS5 by default; optional Privoxy HTTP-proxy front-end for clients that cannot use SOCKS5 directly (opt-in via `PrivoxySettings.Disable = false`).
+- Optionally downloads the latest version of Tor (and Privoxy when opted in) for you.
 
 ## Install
 
@@ -76,17 +76,14 @@ If you were using `Knapcode.TorSharp`, here is the migration table:
 | `TorSharpArchitecture` | `TorProxyArchitecture` |
 | `TorSharpOSPlatform` | `TorProxyOSPlatform` |
 
-## Example using .NET 6+ SOCKS support
+## Example (default — SOCKS5)
 
-Starting on .NET 6, there is built-in support for SOCKS proxies. This means you don't need Privoxy. Thanks, .NET team!
+.NET 6+ has built-in SOCKS5 proxy support, so Privoxy is not needed. `TorProxy` defaults to Tor-only mode and exposes the SOCKS5 port directly.
 
 See [`samples/NativeSocksProxy/Program.cs`](https://github.com/nefarius/TorSharp/tree/master/samples/NativeSocksProxy/Program.cs) for a working sample.
 
 ```csharp
-var settings = new TorProxySettings
-{
-    PrivoxySettings = { Disable = true }
-};
+var settings = new TorProxySettings(); // Privoxy is disabled by default
 
 // download Tor
 using (var httpClient = new HttpClient())
@@ -119,7 +116,9 @@ using (var proxy = new TorProxy(settings))
 }
 ```
 
-## Example using Privoxy
+## Legacy / HTTP-proxy clients — opt-in Privoxy
+
+If your HTTP client cannot use a SOCKS5 proxy directly (e.g. netstandard2.0 consumers or third-party libraries that only accept an HTTP proxy URL), you can opt in to the bundled Privoxy front-end. **Privoxy is disabled by default** — you must explicitly set `PrivoxySettings.Disable = false`.
 
 See [`samples/TorProxy.Sandbox/Program.cs`](https://github.com/nefarius/TorSharp/tree/master/samples/TorProxy.Sandbox/Program.cs) for a working sample.
 
@@ -129,7 +128,7 @@ var settings = new TorProxySettings
 {
    ZippedToolsDirectory = Path.Combine(Path.GetTempPath(), "TorZipped"),
    ExtractedToolsDirectory = Path.Combine(Path.GetTempPath(), "TorExtracted"),
-   PrivoxySettings = { Port = 1337 },
+   PrivoxySettings = { Disable = false, Port = 1337 }, // opt in explicitly
    TorSettings =
    {
       SocksPort = 1338,
@@ -138,7 +137,7 @@ var settings = new TorProxySettings
    },
 };
 
-// download tools
+// download tools (Tor + Privoxy)
 await new TorProxyToolFetcher(settings, new HttpClient()).FetchAsync();
 
 // execute
@@ -210,7 +209,7 @@ Parallel threads must have different values for these settings. The defaults wil
 
 - **Must be made unique by you:**
   - `TorProxySettings.ExtractedToolsDirectory`: this is the parent directory of the tool working directories. Specify a different value for each thread. In the sample above, I see each parallel task to be a sibling directory, e.g. `{some_root}/a`, `{some_root}/b`, etc.
-  - `TorProxySettings.PrivoxySettings.Port`: this is the Privoxy listen port. Each Privoxy process needs its own port. Can be ignored if `TorProxySettings.PrivoxySettings.Disable` is `true`.
+  - `TorProxySettings.PrivoxySettings.Port`: this is the Privoxy listen port. Each Privoxy process needs its own port. Only relevant when Privoxy is opted in (`PrivoxySettings.Disable = false`); ignored by default since Privoxy is disabled.
   - `TorProxySettings.TorSettings.SocksPort`: this is the Tor SOCKS listen port. Each Tor process needs its own port.
 - **Must be unique, but only if you set them:**
   - `TorProxySettings.TorSettings.ControlPort`: this is the Tor SOCKS listen port. Each Tor process needs its own port.

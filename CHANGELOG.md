@@ -1,5 +1,13 @@
 # Changelog
 
+## 6.0.0
+* **Breaking change:** `TorProxyPrivoxySettings.Disable` now defaults to `true`. Privoxy is opt-in.
+* By default only Tor is fetched, extracted, configured, and started. Use the Tor SOCKS5 port directly via `socks5://localhost:{TorSettings.SocksPort}` (requires .NET 6+).
+* `TorProxyToolFetcher` skips all Privoxy mirror/upstream lookups and downloads unless `PrivoxySettings.Disable = false`.
+* CI no longer installs Privoxy Linux runtime dependencies on standard build runs (only on scheduled upstream-health runs).
+* Docker and Docker-Alpine samples updated to use native SOCKS5; Privoxy is no longer installed in the container images by default.
+* **Migration:** callers that relied on the HTTP-proxy front-end must explicitly opt in: `settings.PrivoxySettings.Disable = false`. Everything else (port, address, `ExecutablePathOverride`, download/extraction) works unchanged once opted in.
+
 ## 5.0.0
 * Forked and republished as `Nefarius.Utilities.TorProxy`. Original `Knapcode.TorSharp` copyright (© 2020 Joel Verhagen) preserved.
 * Package id changed: `Knapcode.TorSharp` → `Nefarius.Utilities.TorProxy`.

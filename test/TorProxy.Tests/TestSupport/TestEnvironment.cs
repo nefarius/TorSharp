@@ -34,15 +34,11 @@ namespace Nefarius.Utilities.TorProxy.Tests.TestSupport
             {
                 ZippedToolsDirectory = Path.Combine(TestDirectory.Path, "Zipped"),
                 ExtractedToolsDirectory = Path.Combine(TestDirectory.Path, "Extracted"),
-                PrivoxySettings =
-                {
-                    Port = _ports.Ports[0],
-                },
                 TorSettings =
                 {
                     DataDirectory = Path.Combine(TestDirectory.Path, "TorData"),
-                    SocksPort = _ports.Ports[1],
-                    ControlPort = _ports.Ports[2],
+                    SocksPort = _ports.Ports[0],
+                    ControlPort = _ports.Ports[1],
                 },
                 ReloadTools = true,
                 WriteToConsole = false,
@@ -53,6 +49,18 @@ namespace Nefarius.Utilities.TorProxy.Tests.TestSupport
                 settings.TorSettings.ControlPassword = _torControlPassword;
             }
 
+            return settings;
+        }
+
+        /// <summary>
+        /// Builds settings with Privoxy explicitly enabled (opt-in). Requires a third reserved port.
+        /// </summary>
+        public TorProxySettings BuildSettingsWithPrivoxy()
+        {
+            ThrowIfDisposed();
+            var settings = BuildSettings();
+            settings.PrivoxySettings.Disable = false;
+            settings.PrivoxySettings.Port = _ports.Ports[2];
             return settings;
         }
 
@@ -82,7 +90,7 @@ namespace Nefarius.Utilities.TorProxy.Tests.TestSupport
             var testDirectory = new TestDirectory(output);
             output.WriteLine($"Initializing test environment in base directory: {testDirectory}");
 
-            var ports = ReservedPorts.Reserve(3);
+            var ports = ReservedPorts.Reserve(3); // [0] SOCKS, [1] control, [2] Privoxy (opt-in)
             output.WriteLine($"Reserved ports: {string.Join(", ", ports.Ports)}");
 
             Directory.CreateDirectory(testDirectory);

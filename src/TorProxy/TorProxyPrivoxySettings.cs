@@ -7,12 +7,15 @@ public class TorProxyPrivoxySettings
     public TorProxyPrivoxySettings()
     {
         Port = DefaultPort;
+        Disable = true;
     }
 
     /// <summary>
-    /// This defaults to false. Disables the fetching and starting of the Privoxy tool. This should only be enabled
-    /// if you have an alternate way to proxy HTTP traffic to Tor (e.g. an independent Privoxy instance or the
-    /// built-in SOCKS5 support added to .NET 6: https://devblogs.microsoft.com/dotnet/dotnet-6-networking-improvements/#socks-proxy-support).
+    /// Defaults to <c>true</c>. When <c>true</c>, Privoxy is not fetched, extracted, configured, or started.
+    /// Modern .NET (8+) has built-in SOCKS5 support via <see cref="System.Net.WebProxy"/> with a
+    /// <c>socks5://</c> URI, making Privoxy unnecessary for most consumers.
+    /// Set to <c>false</c> only if you need an HTTP proxy in front of Tor — for example, on
+    /// netstandard2.0 runtimes that lack native SOCKS5, or when interoperating with an HTTP-only proxy client.
     /// </summary>
     public bool Disable { get; set; }
 
