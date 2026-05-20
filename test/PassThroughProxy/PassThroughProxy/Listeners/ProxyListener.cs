@@ -41,23 +41,33 @@ namespace Proxy.Listeners
             catch (OperationCanceledException) when (token.IsCancellationRequested)
             {
             }
+            catch (ObjectDisposedException)
+            {
+                // Listener was stopped before/alongside cancellation.
+            }
+            catch (SocketException)
+            {
+                // Listener was stopped before/alongside cancellation.
+            }
         }
 
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
             {
-                if (_listener != null)
-                {
-                    _listener.Stop();
-                    _listener = null;
-                }
-
+                // Cancel first so AcceptTcpClientAsync sees the token before the listener
+                // is torn down, avoiding SocketException / ObjectDisposedException races.
                 if (_source != null)
                 {
                     _source.Cancel();
                     _source.Dispose();
                     _source = null;
+                }
+
+                if (_listener != null)
+                {
+                    _listener.Stop();
+                    _listener = null;
                 }
             }
         }
