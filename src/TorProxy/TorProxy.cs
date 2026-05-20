@@ -4,7 +4,10 @@ using System.IO;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Nefarius.Utilities.TorProxy.Adapters;
+using Nefarius.Utilities.TorProxy.Logging;
 using Nefarius.Utilities.TorProxy.Tools;
 using Nefarius.Utilities.TorProxy.Tools.Privoxy;
 using Nefarius.Utilities.TorProxy.Tools.Tor;
@@ -58,8 +61,29 @@ public class TorProxy : ITorProxy
     /// </summary>
     /// <param name="settings">The settings to dictate the proxy's behavior.</param>
     public TorProxy(TorProxySettings settings)
+        : this(settings, NullLoggerFactory.Instance)
+    {
+    }
+
+    /// <summary>
+    /// Initializes an instance of the proxy controller with Microsoft.Extensions.Logging support.
+    /// Tor and Privoxy output lines are parsed, their leading timestamp/level prefix stripped
+    /// (when <see cref="TorProxySettings.LogTimestampStripping"/> is <c>true</c>), and forwarded
+    /// to <paramref name="loggerFactory"/> using the category names
+    /// <c>Nefarius.Utilities.TorProxy.Tor</c> and <c>Nefarius.Utilities.TorProxy.Privoxy</c>.
+    /// The <see cref="OutputDataReceived"/> and <see cref="ErrorDataReceived"/> events still fire
+    /// so callers can attach additional sinks.
+    /// </summary>
+    /// <param name="settings">The settings to dictate the proxy's behavior.</param>
+    /// <param name="loggerFactory">
+    /// Logger factory used to create per-tool loggers. Pass
+    /// <see cref="NullLoggerFactory.Instance"/> (or use the single-argument constructor) to
+    /// disable structured logging.
+    /// </param>
+    public TorProxy(TorProxySettings settings, ILoggerFactory loggerFactory)
     {
         _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
         _torPasswordHasher = new TorPasswordHasher(new RandomFactory());
 
         _toolRunner = new CliWrapToolRunner();
@@ -71,6 +95,13 @@ public class TorProxy : ITorProxy
         {
             OutputDataReceived += (_, x) => Console.Out.WriteLine(x.Data);
             ErrorDataReceived += (_, x) => Console.Error.WriteLine(x.Data);
+        }
+
+        if (loggerFactory is not NullLoggerFactory)
+        {
+            var toolLogger = new ToolLogger(loggerFactory, settings);
+            OutputDataReceived += (_, e) => toolLogger.HandleLine(e, isStderr: false);
+            ErrorDataReceived += (_, e) => toolLogger.HandleLine(e, isStderr: true);
         }
     }
 

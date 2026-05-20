@@ -1,5 +1,13 @@
 # Changelog
 
+## 7.0.0
+* Added `Nefarius.Utilities.TorProxy.DependencyInjection` companion package (`net8.0`/`net9.0`) with:
+  * `AddTorProxy(configure, configureHostedService)` — single-call `IServiceCollection` registration that wires `TorProxySettings` (options pattern), `ITorProxy`, `ITorProxyToolFetcher`, and a `TorProxyHostedService`.
+  * `TorProxyHostedService` / `TorProxyHostedServiceOptions` — `IHostedService` that auto-fetches tool binaries and starts/stops the proxy with the Generic Host lifetime. `AutoFetchTools` can be set to `false` to skip the download step.
+  * `UseTorSocks5Proxy()` extension on `IHttpClientBuilder` — routes the named `HttpClient`'s primary handler through the configured Tor SOCKS5 port.
+* Added `ILoggerFactory` constructor overload on `TorProxy`. Tor (and Privoxy) output lines are parsed, the leading timestamp+severity prefix is stripped (see `LogTimestampStripping`), and forwarded to distinct logger categories (`Nefarius.Utilities.TorProxy.Tor`, `Nefarius.Utilities.TorProxy.Privoxy`) so log output is clean and filterable.
+* Added `TorProxySettings.LogTimestampStripping` (default `true`), `MinTorLogLevel` (default `Debug`), and `MinPrivoxyLogLevel` (default `Debug`) settings knobs.
+
 ## 6.0.0
 * **Breaking change:** `TorProxyPrivoxySettings.Disable` now defaults to `true`. Privoxy is opt-in.
 * By default only Tor is fetched, extracted, configured, and started. Use the Tor SOCKS5 port directly via `socks5://localhost:{TorSettings.SocksPort}` (requires .NET 6+).
