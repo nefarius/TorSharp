@@ -53,8 +53,16 @@ This product is produced independently from the Tor® anonymity software and car
 
 ## Install
 
+Core library (imperative API, `netstandard2.0` + `net8.0` + `net9.0`):
+
 ```
 dotnet add package Nefarius.Utilities.TorProxy
+```
+
+ASP.NET Core / Generic Host integration (`net8.0` + `net9.0`):
+
+```
+dotnet add package Nefarius.Utilities.TorProxy.DependencyInjection
 ```
 
 ## Migrating from Knapcode.TorSharp
@@ -75,6 +83,90 @@ If you were using `Knapcode.TorSharp`, here is the migration table:
 | `TorSharpException` | `TorProxyException` |
 | `TorSharpArchitecture` | `TorProxyArchitecture` |
 | `TorSharpOSPlatform` | `TorProxyOSPlatform` |
+
+## Dependency injection (ASP.NET Core / Generic Host)
+
+The companion package `Nefarius.Utilities.TorProxy.DependencyInjection` provides a
+single-call registration that wires the settings (options pattern), the proxy singleton, the
+tool fetcher, an `IHostedService` that auto-starts Tor on application startup, and a
+`UseTorSocks5Proxy()` extension for named `HttpClient` registrations.
+
+Tor's stdout/stderr output is forwarded directly to `ILogger` — the leading
+timestamp and level prefix emitted by the Tor process are stripped automatically so
+console formatters produce clean, deduplicated output:
+
+```text
+[14:08:32 INF] Nefarius.Utilities.TorProxy.Tor: Heartbeat: Tor's uptime is 1 day 18:00 hours, …
+```
+
+Instead of the doubled metadata you would see otherwise:
+
+```text
+[14:08:32 INF] TOR Proxy: May 20 14:08:32.000 [notice] Heartbeat: Tor's uptime is 1 day 18:00 hours, …
+```
+
+See [`samples/GenericHostDI/Program.cs`](https://github.com/nefarius/TorSharp/tree/master/samples/GenericHostDI/Program.cs) for a complete working sample.
+
+```csharp
+// Program.cs (ASP.NET Core / Generic Host)
+
+builder.Services.AddTorProxy(o =>
+{
+    o.PrivoxySettings.Disable = true;      // use SOCKS5 directly (default)
+    o.WriteToConsole = false;              // let ILogger handle output
+    // o.MinTorLogLevel = LogLevel.Information;   // optional: suppress Debug lines
+});
+
+// Route requests through Tor SOCKS5 with a single call.
+builder.Services.AddHttpClient("Crawler", c =>
+    {
+        c.Timeout = TimeSpan.FromSeconds(45);
+        c.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0");
+    })
+    .UseTorSocks5Proxy()
+    .SetHandlerLifetime(TimeSpan.FromMinutes(5));
+
+// A direct (non-Tor) client — omit UseTorSocks5Proxy().
+builder.Services.AddHttpClient("CrawlerDirect", c =>
+{
+    c.Timeout = TimeSpan.FromSeconds(45);
+    c.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0");
+});
+```
+
+### Hosted-service options
+
+By default `TorProxyHostedService` fetches the Tor binary on startup
+(`AutoFetchTools = true`). You can skip this if you manage downloads yourself:
+
+```csharp
+builder.Services.AddTorProxy(
+    configure: o => { /* settings */ },
+    configureHostedService: o => o.AutoFetchTools = false);
+```
+
+### Filtering Tor log output
+
+You can suppress very chatty Tor log levels through settings:
+
+```csharp
+builder.Services.AddTorProxy(o =>
+{
+    o.MinTorLogLevel = LogLevel.Information; // drop Debug/Info Tor lines
+});
+```
+
+Or filter via `appsettings.json` using the standard logging filter:
+
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Nefarius.Utilities.TorProxy.Tor": "Information"
+    }
+  }
+}
+```
 
 ## Example (default — SOCKS5)
 

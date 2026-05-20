@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <AssemblyName>Nefarius.Utilities.TorProxy.DependencyInjection</AssemblyName>
+    <RootNamespace>Nefarius.Utilities.TorProxy.DependencyInjection</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>1591</NoWarn>
+
+    <PackageId>Nefarius.Utilities.TorProxy.DependencyInjection</PackageId>
+    <Version>$(TorProxyVersion)</Version>
+    <Authors>Nefarius</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Description>ASP.NET Core / Generic Host integration for Nefarius.Utilities.TorProxy. Provides AddTorProxy(), IHostedService auto-start, and UseTorSocks5Proxy() for IHttpClientBuilder.</Description>
+    <PackageProjectUrl>https://github.com/nefarius/TorSharp</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Copyright>Copyright © 2024-2026 Nefarius</Copyright>
+    <PackageTags>tor proxy http socks socks5 dependency-injection aspnetcore hosted-service</PackageTags>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <DebugType>embedded</DebugType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReleaseNotes>See CHANGELOG.md at https://github.com/nefarius/TorSharp/blob/master/CHANGELOG.md</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="" />
+    <None Include="..\..\NOTICE.md" Pack="true" PackagePath="" />
+    <None Include="..\..\icon.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TorProxy\TorProxy.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+  </ItemGroup>
+
+</Project>

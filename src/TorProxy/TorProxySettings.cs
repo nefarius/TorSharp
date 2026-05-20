@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using Nefarius.Utilities.TorProxy.Tools;
 
 namespace Nefarius.Utilities.TorProxy;
@@ -144,6 +145,32 @@ public class TorProxySettings
     /// listen the output yourself.
     /// </summary>
     public bool WriteToConsole { get; set; } = true;
+
+    /// <summary>
+    /// When <c>true</c> (the default), the leading timestamp+severity prefix emitted by Tor
+    /// (e.g. <c>May 20 14:08:32.000 [notice]</c>) and Privoxy are stripped before the line is
+    /// forwarded to <see cref="Microsoft.Extensions.Logging.ILogger"/>. The host's own
+    /// formatter then supplies a single consistent timestamp, eliminating duplicated metadata.
+    /// Set to <c>false</c> to forward the raw unmodified line.
+    /// Has no effect when no <see cref="Microsoft.Extensions.Logging.ILoggerFactory"/> is
+    /// provided to the <see cref="TorProxy"/> constructor.
+    /// </summary>
+    public bool LogTimestampStripping { get; set; } = true;
+
+    /// <summary>
+    /// Minimum <see cref="Microsoft.Extensions.Logging.LogLevel"/> for lines originating from
+    /// the Tor process. Lines below this threshold are discarded before they reach the logger.
+    /// Defaults to <see cref="Microsoft.Extensions.Logging.LogLevel.Debug"/> (pass everything).
+    /// </summary>
+    public LogLevel MinTorLogLevel { get; set; } = LogLevel.Debug;
+
+    /// <summary>
+    /// Minimum <see cref="Microsoft.Extensions.Logging.LogLevel"/> for lines originating from
+    /// the Privoxy process. Lines below this threshold are discarded before they reach the logger.
+    /// Defaults to <see cref="Microsoft.Extensions.Logging.LogLevel.Debug"/> (pass everything).
+    /// Only relevant when Privoxy is enabled (<c>PrivoxySettings.Disable = false</c>).
+    /// </summary>
+    public LogLevel MinPrivoxyLogLevel { get; set; } = LogLevel.Debug;
 
     /// <summary>
     /// Settings specific to Privoxy.
