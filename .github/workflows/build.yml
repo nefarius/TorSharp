@@ -170,4 +170,11 @@ jobs:
           path: packages
 
       - name: Push artifacts
-        run: dotnet nuget push packages\*.nupkg -s https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json -k ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+        run: |
+          Get-ChildItem -Path packages -Filter *.nupkg -Recurse |
+            ForEach-Object {
+              dotnet nuget push $_.FullName `
+                -s https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json `
+                -k ${{ secrets.GITHUB_TOKEN }} `
+                --skip-duplicate
+            }
