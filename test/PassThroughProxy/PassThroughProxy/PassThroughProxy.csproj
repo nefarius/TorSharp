@@ -9,8 +9,6 @@
     <PackageTags>https connect proxy tunnel</PackageTags>
     <PackageVersion>1.0.0</PackageVersion>
     <Description>A forward proxy server supporting HTTP proxy and HTTPS (CONNECT) tunnels.</Description>
-    <!-- Override root signing key — this project has its own test-only key -->
-    <AssemblyOriginatorKeyFile>..\PassThroughProxy.ForTesting.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
 </Project>

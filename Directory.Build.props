@@ -34,10 +34,4 @@
     <WarningsNotAsErrors>CS1591</WarningsNotAsErrors>
   </PropertyGroup>
 
-  <!-- Shared signing settings for all projects -->
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Nefarius.Utilities.TorProxy.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
-
 </Project>

@@ -16,7 +16,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PassThroughProxy", "PassThroughProxy", "{CF825687-1878-48CC-9A79-02A72E3E07E5}"
 	ProjectSection(SolutionItems) = preProject
 		test\PassThroughProxy\LICENSE = test\PassThroughProxy\LICENSE
-		test\PassThroughProxy\PassThroughProxy.ForTesting.snk = test\PassThroughProxy\PassThroughProxy.ForTesting.snk
 		test\PassThroughProxy\REDISTRIBUTION-NOTE = test\PassThroughProxy\REDISTRIBUTION-NOTE
 	EndProjectSection
 EndProject
@@ -32,7 +31,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		global.json = global.json
 		LICENSE = LICENSE
 		README.md = README.md
-		Nefarius.Utilities.TorProxy.snk = Nefarius.Utilities.TorProxy.snk
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{4424E6A7-F2A7-4FC9-9999-79998A4B2C07}"

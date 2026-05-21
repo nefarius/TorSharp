@@ -7,7 +7,6 @@
     <File Path="global.json" />
     <File Path="LICENSE" />
     <File Path="README.md" />
-    <File Path="Nefarius.Utilities.TorProxy.snk" />
   </Folder>
   <Folder Name="/.github/">
     <Folder Name="/workflows/">
@@ -30,7 +29,6 @@
     <Project Path="test/TestApp/TestApp.csproj" />
     <Folder Name="/PassThroughProxy/">
       <File Path="test/PassThroughProxy/LICENSE" />
-      <File Path="test/PassThroughProxy/PassThroughProxy.ForTesting.snk" />
       <File Path="test/PassThroughProxy/REDISTRIBUTION-NOTE" />
       <Project Path="test/PassThroughProxy/PassThroughProxy/PassThroughProxy.csproj" />
     </Folder>
