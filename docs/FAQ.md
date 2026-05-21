@@ -71,11 +71,11 @@ None of the types in this library should be considered thread safe. Use separate
 Parallel threads must have different values for these settings. The defaults will not work.
 
 - **Must be made unique by you:**
-  - `TorProxySettings.ExtractedToolsDirectory`: this is the parent directory of the tool working directories. Specify a different value for each thread. In the sample above, I see each parallel task to be a sibling directory, e.g. `{some_root}/a`, `{some_root}/b`, etc.
+  - `TorProxySettings.ExtractedToolsDirectory`: this is the parent directory of the tool working directories. Specify a different value for each thread. In the sample above, each parallel task uses a sibling directory, e.g. `{some_root}/a`, `{some_root}/b`, etc.
   - `TorProxySettings.PrivoxySettings.Port`: this is the Privoxy listen port. Each Privoxy process needs its own port. Only relevant when Privoxy is opted in (`PrivoxySettings.Disable = false`); ignored by default since Privoxy is disabled.
   - `TorProxySettings.TorSettings.SocksPort`: this is the Tor SOCKS listen port. Each Tor process needs its own port.
 - **Must be unique, but only if you set them:**
-  - `TorProxySettings.TorSettings.ControlPort`: this is the Tor SOCKS listen port. Each Tor process needs its own port.
+  - `TorProxySettings.TorSettings.ControlPort`: this is the Tor control port used for the control protocol. Each Tor process needs its own port.
   - `TorProxySettings.TorSettings.AdditionalSockPorts`: if used, it must have unique values.
   - `TorProxySettings.TorSettings.HttpTunnelPort`: if used, it must have a unique value.
   - `TorProxySettings.TorSettings.DataDirectory`: the default is based `ExtractedToolsDirectory`, but if you manually set it, it must be unique.
