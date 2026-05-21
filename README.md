@@ -12,45 +12,42 @@
 ![.NET 8](https://img.shields.io/badge/.NET-8-blue)
 ![.NET 9](https://img.shields.io/badge/.NET-9-blue)
 ![.NET 10](https://img.shields.io/badge/.NET-10-blue)
-[![Nefarius.Utilities.TorProxy on GitHub Packages](https://img.shields.io/badge/GitHub_Packages-Nefarius.Utilities.TorProxy-blue?logo=nuget)](https://github.com/nefarius/TorSharp/pkgs/nuget/Nefarius.Utilities.TorProxy)
-[![Nefarius.Utilities.TorProxy.DependencyInjection on GitHub Packages](https://img.shields.io/badge/GitHub_Packages-Nefarius.Utilities.TorProxy.DependencyInjection-blue?logo=nuget)](https://github.com/nefarius/TorSharp/pkgs/nuget/Nefarius.Utilities.TorProxy.DependencyInjection)
+[![Nuget](https://img.shields.io/nuget/v/Nefarius.Utilities.TorProxy?label=Nefarius.Utilities.TorProxy)](https://www.nuget.org/packages/Nefarius.Utilities.TorProxy/)
+[![Nuget](https://img.shields.io/nuget/dt/Nefarius.Utilities.TorProxy)](https://www.nuget.org/packages/Nefarius.Utilities.TorProxy/)
+[![Nuget](https://img.shields.io/nuget/v/Nefarius.Utilities.TorProxy.DependencyInjection?label=Nefarius.Utilities.TorProxy.DependencyInjection)](https://www.nuget.org/packages/Nefarius.Utilities.TorProxy.DependencyInjection/)
+[![Nuget](https://img.shields.io/nuget/dt/Nefarius.Utilities.TorProxy.DependencyInjection)](https://www.nuget.org/packages/Nefarius.Utilities.TorProxy.DependencyInjection/)
 
 Use Tor for your C# HTTP clients via .NET's built-in SOCKS5 support. Privoxy is available as an opt-in HTTP-proxy front-end for legacy consumers.
 
-All you need is client code with SOCKS5 proxy support (built into .NET 6+). If your client only supports HTTP proxies, you can opt in to the bundled Privoxy front-end.
+## Features
 
-## Changes of this fork
+- Routes `HttpClient` traffic through Tor with zero external dependencies beyond the library itself.
+- Automatically downloads and verifies Tor (and optionally Privoxy) binaries via the [TorSharp.Mirror](https://github.com/nefarius/TorSharp.Mirror) long-term binary cache (SHA256-verified, nightly refresh) with transparent fallback to upstream.
+- SOCKS5-first: Tor is exposed directly via its SOCKS5 port; `.NET 6+` `HttpClientHandler` works out of the box.
+- Optional Privoxy HTTP-proxy front-end for clients that cannot use SOCKS5 (opt-in via `PrivoxySettings.Disable = false`).
+- `IHostedService` integration for ASP.NET Core / Generic Host via the companion `Nefarius.Utilities.TorProxy.DependencyInjection` package.
+- Tor stdout/stderr forwarded to `ILogger` with leading timestamp/severity stripped for clean, deduplication-free output.
+- Supports running multiple parallel Tor instances (each with its own ports and directories).
+- Configurable mirror URL for self-hosted binary caches.
+- Process management via [CliWrap](https://github.com/Tyrrrz/CliWrap); no PInvoke or platform-specific job objects.
 
-- Introduced the [TorSharp.Mirror](https://github.com/nefarius/TorSharp.Mirror) long-term binary cache (default-on, SHA256-verified, nightly refresh)
-- Switched process management to [CliWrap](https://github.com/Tyrrrz/CliWrap) and removed all hand-rolled PInvoke code (`Desktop`, `Job`, `Process`, `FileStreamEventEmitter`, `SafeDesktopHandle`, `SafeJobHandle`)
-- Dropped `ToolRunnerType` enum and `VirtualDesktopName` setting — single built-in runner for all platforms
-- Modernized targets: `netstandard2.0`, `net8.0`, `net9.0`, `net10.0`; dropped .NET Framework targets (use v2.x for Framework 4.6.2/4.7.2)
-- Hardened HTTP discovery: shared `Nefarius.Utilities.TorProxy/{version}` User-Agent, 3× retry with exponential back-off, per-request discovery timeout
-- Fixed TAR extraction on non-seekable streams using BCL `TarReader` on .NET 7+
-- Added Alpine Docker sample and dropped broken Privoxy upstream sources (`privoxy.org` RSS, SourceForge RSS)
-- Rebranded from `Knapcode.TorSharp` to `Nefarius.Utilities.TorProxy` (v5+)
+## Limitations
 
-## Notice
+- macOS support is not planned.
+- .NET Framework targets were dropped in v3.0.0. Use v2.x for .NET Framework 4.6.2/4.7.2 support.
+- Privoxy is disabled by default since v6.0.0; callers that relied on the HTTP proxy front-end must explicitly set `PrivoxySettings.Disable = false`.
+- No type is thread-safe. Use separate instances per parallel task (see [docs/FAQ.md](docs/FAQ.md)).
 
-This product is produced independently from the Tor® anonymity software and carries no guarantee from [The Tor Project](https://www.torproject.org/) about quality, suitability or anything else.
+## Supported systems
 
-## Details
-
-- Supports:
-  - **.NET** (.NET Standard 2.0, .NET 8, .NET 9, .NET 10)
-  - ❌ **.NET Framework** targets have been dropped as of v3.0.0. Use v2.x for .NET Framework 4.6.2/4.7.2 support.
-  - **Windows**
-    - ✔️ Windows 10 / Windows Server 2019 and later
-    - ✔️ Windows 11 / Windows Server 2022 and later
-  - **Linux**
-    - ✔️ Ubuntu 22.04
-    - ✔️ Ubuntu 24.04
-    - ✔️ Debian 11 / Debian 12
-    - ⚠️ CentOS/RHEL supported via `ExecutablePathOverride` ([see below](#centos-7))
-    - ⚠️ Alpine supported via `ExecutablePathOverride` (run `apk add tor`; add `privoxy` and set `PrivoxySettings.Disable = false` only when the HTTP-proxy front-end is needed)
-  - ❌ Mac OS X support is not planned.
-- Tor SOCKS5 by default; optional Privoxy HTTP-proxy front-end for clients that cannot use SOCKS5 directly (opt-in via `PrivoxySettings.Disable = false`).
-- Optionally downloads the latest version of Tor (and Privoxy when opted in) for you.
+| Component | Supported |
+|---|---|
+| .NET | .NET Standard 2.0, .NET 8, .NET 9, .NET 10 |
+| .NET Framework | v2.x only (4.6.2 / 4.7.2); dropped in v3+ |
+| Windows | 10 / Server 2019 and later; 11 / Server 2022 and later |
+| Linux | Ubuntu 22.04, Ubuntu 24.04, Debian 11, Debian 12 |
+| Linux (system binary) | CentOS/RHEL and Alpine via `ExecutablePathOverride` |
+| macOS | Not planned |
 
 ## Install
 
@@ -66,110 +63,7 @@ ASP.NET Core / Generic Host integration (`net8.0` + `net9.0` + `net10.0`):
 dotnet add package Nefarius.Utilities.TorProxy.DependencyInjection
 ```
 
-## Migrating from Knapcode.TorSharp
-
-If you were using `Knapcode.TorSharp`, here is the migration table:
-
-| Old (Knapcode.TorSharp) | New (Nefarius.Utilities.TorProxy) |
-|---|---|
-| `using Knapcode.TorSharp;` | `using Nefarius.Utilities.TorProxy;` |
-| `TorSharpProxy` | `TorProxy` |
-| `ITorSharpProxy` | `ITorProxy` |
-| `TorSharpProxyExtensions` | `TorProxyExtensions` |
-| `TorSharpSettings` | `TorProxySettings` |
-| `TorSharpToolFetcher` | `TorProxyToolFetcher` |
-| `ITorSharpToolFetcher` | `ITorProxyToolFetcher` |
-| `TorSharpPrivoxySettings` | `TorProxyPrivoxySettings` |
-| `TorSharpTorSettings` | `TorProxyTorSettings` |
-| `TorSharpException` | `TorProxyException` |
-| `TorSharpArchitecture` | `TorProxyArchitecture` |
-| `TorSharpOSPlatform` | `TorProxyOSPlatform` |
-
-## Dependency injection (ASP.NET Core / Generic Host)
-
-The companion package `Nefarius.Utilities.TorProxy.DependencyInjection` provides a
-single-call registration that wires the settings (options pattern), the proxy singleton, the
-tool fetcher, an `IHostedService` that auto-starts Tor on application startup, and a
-`UseTorSocks5Proxy()` extension for named `HttpClient` registrations.
-
-Tor's stdout/stderr output is forwarded directly to `ILogger` — the leading
-timestamp and level prefix emitted by the Tor process are stripped automatically so
-console formatters produce clean, deduplicated output:
-
-```text
-[14:08:32 INF] Nefarius.Utilities.TorProxy.Tor: Heartbeat: Tor's uptime is 1 day 18:00 hours, …
-```
-
-Instead of the doubled metadata you would see otherwise:
-
-```text
-[14:08:32 INF] TOR Proxy: May 20 14:08:32.000 [notice] Heartbeat: Tor's uptime is 1 day 18:00 hours, …
-```
-
-See [`samples/GenericHostDI/Program.cs`](https://github.com/nefarius/TorSharp/tree/master/samples/GenericHostDI/Program.cs) for a complete working sample.
-
-```csharp
-// Program.cs (ASP.NET Core / Generic Host)
-
-builder.Services.AddTorProxy(o =>
-{
-    o.PrivoxySettings.Disable = true;      // use SOCKS5 directly (default)
-    o.WriteToConsole = false;              // let ILogger handle output
-    // o.MinTorLogLevel = LogLevel.Information;   // optional: allow Information and above only (drops Trace and Debug)
-});
-
-// Route requests through Tor SOCKS5 with a single call.
-builder.Services.AddHttpClient("Crawler", c =>
-    {
-        c.Timeout = TimeSpan.FromSeconds(45);
-        c.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0");
-    })
-    .UseTorSocks5Proxy()
-    .SetHandlerLifetime(TimeSpan.FromMinutes(5));
-
-// A direct (non-Tor) client — omit UseTorSocks5Proxy().
-builder.Services.AddHttpClient("CrawlerDirect", c =>
-{
-    c.Timeout = TimeSpan.FromSeconds(45);
-    c.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0");
-});
-```
-
-### Hosted-service options
-
-By default `TorProxyHostedService` fetches the Tor binary on startup
-(`AutoFetchTools = true`). You can skip this if you manage downloads yourself:
-
-```csharp
-builder.Services.AddTorProxy(
-    configure: o => { /* settings */ },
-    configureHostedService: o => o.AutoFetchTools = false);
-```
-
-### Filtering Tor log output
-
-You can suppress very chatty Tor log levels through settings:
-
-```csharp
-builder.Services.AddTorProxy(o =>
-{
-    o.MinTorLogLevel = LogLevel.Information; // allow Information and above; drops Trace and Debug
-});
-```
-
-Or filter via `appsettings.json` using the standard logging filter:
-
-```json
-{
-  "Logging": {
-    "LogLevel": {
-      "Nefarius.Utilities.TorProxy.Tor": "Information"
-    }
-  }
-}
-```
-
-## Example (default — SOCKS5)
+## Quick start — SOCKS5 (default)
 
 .NET 6+ has built-in SOCKS5 proxy support, so Privoxy is not needed. `TorProxy` defaults to Tor-only mode and exposes the SOCKS5 port directly.
 
@@ -209,9 +103,92 @@ using (var proxy = new TorProxy(settings))
 }
 ```
 
-## Legacy / HTTP-proxy clients — opt-in Privoxy
+## ASP.NET Core / Generic Host (DI)
 
-If your HTTP client cannot use a SOCKS5 proxy directly (e.g. netstandard2.0 consumers or third-party libraries that only accept an HTTP proxy URL), you can opt in to the bundled Privoxy front-end. **Privoxy is disabled by default** — you must explicitly set `PrivoxySettings.Disable = false`.
+The companion package `Nefarius.Utilities.TorProxy.DependencyInjection` provides a
+single-call registration that wires the settings (options pattern), the proxy singleton, the
+tool fetcher, an `IHostedService` that auto-starts Tor on application startup, and a
+`UseTorSocks5Proxy()` extension for named `HttpClient` registrations.
+
+Tor's stdout/stderr output is forwarded directly to `ILogger` — the leading
+timestamp and level prefix emitted by the Tor process are stripped automatically so
+console formatters produce clean, deduplicated output:
+
+```text
+[14:08:32 INF] Nefarius.Utilities.TorProxy.Tor: Heartbeat: Tor's uptime is 1 day 18:00 hours, …
+```
+
+Instead of the doubled metadata you would see otherwise:
+
+```text
+[14:08:32 INF] TOR Proxy: May 20 14:08:32.000 [notice] Heartbeat: Tor's uptime is 1 day 18:00 hours, …
+```
+
+See [`samples/GenericHostDI/Program.cs`](https://github.com/nefarius/TorSharp/tree/master/samples/GenericHostDI/Program.cs) for a complete working sample.
+
+```csharp
+// Program.cs (ASP.NET Core / Generic Host)
+
+builder.Services.AddTorProxy(o =>
+{
+    o.PrivoxySettings.Disable = true;      // use SOCKS5 directly (default)
+    o.WriteToConsole = false;              // let ILogger handle output
+    // o.MinTorLogLevel = LogLevel.Information;   // optional: allow Information and above only
+});
+
+// Route requests through Tor SOCKS5 with a single call.
+builder.Services.AddHttpClient("Crawler", c =>
+    {
+        c.Timeout = TimeSpan.FromSeconds(45);
+        c.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0");
+    })
+    .UseTorSocks5Proxy()
+    .SetHandlerLifetime(TimeSpan.FromMinutes(5));
+
+// A direct (non-Tor) client — omit UseTorSocks5Proxy().
+builder.Services.AddHttpClient("CrawlerDirect", c =>
+{
+    c.Timeout = TimeSpan.FromSeconds(45);
+    c.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0");
+});
+```
+
+### Hosted-service options
+
+By default `TorProxyHostedService` fetches the Tor binary on startup (`AutoFetchTools = true`). To skip if you manage downloads yourself:
+
+```csharp
+builder.Services.AddTorProxy(
+    configure: o => { /* settings */ },
+    configureHostedService: o => o.AutoFetchTools = false);
+```
+
+### Filtering Tor log output
+
+Via settings:
+
+```csharp
+builder.Services.AddTorProxy(o =>
+{
+    o.MinTorLogLevel = LogLevel.Information; // drops Trace and Debug
+});
+```
+
+Via `appsettings.json` using the standard logging filter:
+
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Nefarius.Utilities.TorProxy.Tor": "Information"
+    }
+  }
+}
+```
+
+## Legacy HTTP-proxy clients — opt-in Privoxy
+
+If your HTTP client cannot use a SOCKS5 proxy directly (e.g. `netstandard2.0` consumers or third-party libraries that only accept an HTTP proxy URL), you can opt in to the bundled Privoxy front-end. **Privoxy is disabled by default** — you must explicitly set `PrivoxySettings.Disable = false`.
 
 See [`samples/TorProxy.Sandbox/Program.cs`](https://github.com/nefarius/TorSharp/tree/master/samples/TorProxy.Sandbox/Program.cs) for a working sample.
 
@@ -245,178 +222,6 @@ Console.WriteLine(await httpClient.GetStringAsync("http://api.ipify.org"));
 await proxy.GetNewIdentityAsync();
 Console.WriteLine(await httpClient.GetStringAsync("http://api.ipify.org"));
 proxy.Stop();
-```
-
-## FAQ
-
-### The tool fetcher is throwing an exception. What do I do?
-
-By default `TorProxyToolFetcher` tries to download binaries from the
-[TorSharp.Mirror](https://github.com/nefarius/TorSharp.Mirror) first (a long-term binary
-cache with SHA256 verification), then falls back to the original upstream sites.  If an
-exception still occurs, here are the next steps:
-
-1. **Check the mirror.** Visit
-   [github.com/nefarius/TorSharp.Mirror/releases](https://github.com/nefarius/TorSharp.Mirror/releases)
-   to see when the mirror was last refreshed.
-
-1. **Opt out of the mirror** and use upstream discovery directly:
-   ```csharp
-   var settings = new TorProxySettings { UseMirror = false };
-   ```
-
-1. [Open an issue](https://github.com/nefarius/TorSharp/issues/new) so we can look into it.
-
-1. Work around the issue by setting up the tools manually and not using `TorProxyToolFetcher`. [See below](#how-do-i-set-up-the-tools-manually).
-
-1. Investigate the issue yourself. The [TorProxy.Sandbox](https://github.com/nefarius/TorSharp/blob/master/samples/TorProxy.Sandbox/Program.cs) project is helpful for this. Pull requests accepted 🏆.
-
-### How do I set up the tools manually?
-
-If you don't want to use the `TorProxyToolFetcher` to download the latest version of the tools for you or if you want to use a specific version of Tor and Privoxy, follow these steps.
-
-1. Make a directory that will hold the zipped Tor and Privoxy binaries.
-1. Put a Tor Win32 ZIP in that folder with the file name like: `tor-win32-{version}.zip`
-   - `{version}` must be parsable as a `System.Version` meaning it is `major.minor[.build[.revision]]`.
-   - Example: `tor-win32-0.3.5.8.zip`
-   - The ZIP is expected to have `Tor\tor.exe`.
-1. Put a Privoxy Win32 ZIP in that folder with a file name like: `privoxy-win32-{version}.zip`
-   - Again, `{version}` must be parsable as a `System.Version`.
-   - Example: `privoxy-win32-3.0.26.zip`
-   - The ZIP is expected to have `privoxy.exe`.
-1. Initialize a `TorProxySettings` instance where `ZippedToolsDirectory` is the directory created above.
-1. Pass this settings instance to the `TorProxy` constructor.
-
-### Can I run multiple instances in parallel?
-
-Yes, you can. See this sample: [`samples/MultipleInstances/Program.cs`](https://github.com/nefarius/TorSharp/tree/master/samples/MultipleInstances/Program.cs).
-
-However, you need to adhere to the following guidance.
-
-None of the types in this library should be considered thread safe. Use separate instances for each parallel task/thread.
-- `TorProxy`: this is stateful and should not be shared.
-- `TorProxySettings`: the values held in the settings class need to be different for parallel threads, so it doesn't make sense to share instances.
-- `TorProxyToolFetcher`: this is stateless so it may be safe, but I would keep this a singleton since you shouldn't have multiple copies of the zipped tools (just multiple copies of the *extracted tools*).
-
-Parallel threads must have different values for these settings. The defaults will not work.
-
-- **Must be made unique by you:**
-  - `TorProxySettings.ExtractedToolsDirectory`: this is the parent directory of the tool working directories. Specify a different value for each thread. In the sample above, I see each parallel task to be a sibling directory, e.g. `{some_root}/a`, `{some_root}/b`, etc.
-  - `TorProxySettings.PrivoxySettings.Port`: this is the Privoxy listen port. Each Privoxy process needs its own port. Only relevant when Privoxy is opted in (`PrivoxySettings.Disable = false`); ignored by default since Privoxy is disabled.
-  - `TorProxySettings.TorSettings.SocksPort`: this is the Tor SOCKS listen port. Each Tor process needs its own port.
-- **Must be unique, but only if you set them:**
-  - `TorProxySettings.TorSettings.ControlPort`: this is the Tor SOCKS listen port. Each Tor process needs its own port.
-  - `TorProxySettings.TorSettings.AdditionalSockPorts`: if used, it must have unique values.
-  - `TorProxySettings.TorSettings.HttpTunnelPort`: if used, it must have a unique value.
-  - `TorProxySettings.TorSettings.DataDirectory`: the default is based `ExtractedToolsDirectory`, but if you manually set it, it must be unique.
-
-In general, directory configuration values must be different from all of the other directories, except `TorProxySettings.ZippedToolsDirectory` which should not be downloaded to in parallel by `TorProxyToolFetcher` but can be read from in parallel with multiple `TorProxy` instances. Port configuration values need to all be unique.
-
-### How do I change what TorProxy logs?
-
-By default, TorProxy lets the tools (Tor, Privoxy) log to the main process stdout and stderr. If you want to disable this behavior, set `TorProxySettings.WriteToConsole` to `false`. If you want to intercept the output from the tools, attach to the `TorProxy.OutputDataReceived` (for stdout) and `TorProxy.ErrorDataReceived` (for stderr) events. In your event handler, you can log to some external sink or enqueue the line for processing. The event handlers are fired from a task using the default task scheduler so this blocks one of the shared worker threads. Don't do too much heavy lifting there, I guess! If you want to know which tool sent the log message, look at the `DataEventArgs.ExecutablePath` property.
-
-For a full sample, see this: [`samples/CustomLogging/Program.cs`](https://github.com/nefarius/TorSharp/blob/master/samples/CustomLogging/Program.cs).
-
-### Privoxy fetched by TorProxy fails to start? Try installing missing dependencies.
-
-It's possible some expected shared libraries aren't there. Try to look at the error message and judge which library needs to be installed from your distro's package repository.
-
-#### Ubuntu 20.04
-
-**Problem:** On Ubuntu 20.04 the following errors may appear:
-
-`
-/tmp/TorExtracted/privoxy-linux64-3.0.29/usr/sbin/privoxy: error while loading shared libraries: libmbedtls.so.12: cannot open shared object file: No such file or directory
-`
-
-**Solution:** install the missing dependencies. Note that these steps **install packages from the Debian repository**. This is very much not recommended by official guidance. For my own testing, it works well enough. I use this trick in the GitHub Action workflow. ⚠️ Do this at your own risk!
-
-```console
-[joel@ubuntu]$ curl -O http://ftp.us.debian.org/debian/pool/main/m/mbedtls/libmbedcrypto3_2.16.0-1_amd64.deb
-[joel@ubuntu]$ curl -O http://ftp.us.debian.org/debian/pool/main/m/mbedtls/libmbedx509-0_2.16.0-1_amd64.deb
-[joel@ubuntu]$ curl -O http://ftp.us.debian.org/debian/pool/main/m/mbedtls/libmbedtls12_2.16.0-1_amd64.deb
-[joel@ubuntu]$ echo "eb6751c98adfdf0e7a5a52fbd1b5a284ffd429e73abb4f0a4497374dd9f142c7 libmbedcrypto3_2.16.0-1_amd64.deb" > SHA256SUMS
-[joel@ubuntu]$ echo "e8ea5dd71b27591c0f55c1d49f597d3d3b5c747bde25d3b3c3b03ca281fc3045 libmbedx509-0_2.16.0-1_amd64.deb" >> SHA256SUMS
-[joel@ubuntu]$ echo "786c7e7805a51f3eccd449dd44936f735afa97fc5f3702411090d8b40f0e9eda libmbedtls12_2.16.0-1_amd64.deb" >> SHA256SUMS
-[joel@ubuntu]$ sha256sum -c SHA256SUMS || { echo "Checksum failed. Aborting."; exit 1; }
-[joel@ubuntu]$ sudo apt-get install -y --allow-downgrades ./*.deb
-```
-
-I have the checksum verification in there because these pages have SSL problems and the advertised URL is HTTP not HTTPS (by design I think).
-
-#### Debian 10
-
-**Problem:** On Debian 10 the following errors may appear:
-
-`
- /tmp/TorExtracted/privoxy-linux64-3.0.29/usr/sbin/privoxy: error while loading shared libraries: libbrotlidec.so.1: cannot open shared object file: No such file or directory
-`
-
-`
- /tmp/TorExtracted/privoxy-linux64-3.0.29/usr/sbin/privoxy: error while loading shared libraries: libmbedtls.so.12: cannot open shared object file: No such file or directory
-`
-
-**Solution:** install two missing dependencies. Thanks for [the heads up](https://github.com/joelverhagen/TorSharp/issues/64#issuecomment-774701302), [@cod3rshotout](https://github.com/cod3rshotout)!
-
-```console
-[joel@debian10]$ sudo apt-get install -y libbrotli1 libmbedtls-dev
-```
-
-### Privoxy fetched by TorProxy fails to start? Try `ExecutablePathOverride`.
-
-On Linux, the Privoxy binaries fetched seem to be built for the latest Debian and Ubuntu distributions. I can confirm that some other distributions don't work.
-
-I'm no Linux expert but my guess is that there are missing shared libraries that are different on the running platform than the Debian platform that Privoxy was compiled for. The easiest workaround is to install Privoxy to your system and set the `TorProxySettings.PrivoxySettings.ExecutablePathOverride` configuration setting to `"privoxy"` (i.e. use Privoxy from PATH).
-
-After you install it, make sure `privoxy` is in the PATH.
-
-```console
-[joel@linux]$ which privoxy
-/usr/sbin/privoxy
-```
-
-After this is done, just configure TorProxy to use the system Privoxy with the `ExecutablePathOverride` setting:
-
-```csharp
-var settings = new TorProxySettings();
-settings.PrivoxySettings.ExecutablePathOverride = "privoxy";
-```
-
-Note that you may encounter warning or error messages in the output due to new configuration being used with an older executable. I haven't ran into any problems with this myself but it's possible things could get weird.
-
-#### CentOS 7
-
-**Problem:** the following error appears:
-
-`
-/tmp/TorExtracted/privoxy-linux64-3.0.28/usr/sbin/privoxy: error while loading shared libraries: libpcre.so.3: cannot open shared object file: No such file or directory
-`
-
-**Solution:** install Privoxy. It is available on `epel-release`.
-
-```console
-[joel@centos]$ sudo yum install epel-release -y
-...
-[joel@centos]$ sudo yum install privoxy -y
-```
-
-#### Debian 9
-
-**Problem:** the following errors may appear:
-
-`
-/tmp/TorExtracted/privoxy-linux64-3.0.29/usr/sbin/privoxy: error while loading shared libraries: libbrotlidec.so.1: cannot open shared object file: No such file or directory
-`
-
-`
-/tmp/TorExtracted/privoxy-linux64-3.0.29/usr/sbin/privoxy: error while loading shared libraries: libmbedtls.so.12: cannot open shared object file: No such file or directory
-`
-
-**Solution:** install Privoxy. It is available in the default source lists.
-
-```console
-[joel@debian9]$ sudo apt-get install privoxy -y
 ```
 
 ## Mirror
@@ -460,3 +265,20 @@ var settings = new TorProxySettings
 ```
 
 The manifest schema is published with every mirror release as `manifest.schema.json`.
+
+## Notice
+
+This product is produced independently from the Tor® anonymity software and carries no guarantee from [The Tor Project](https://www.torproject.org/) about quality, suitability or anything else.
+
+## FAQ / Troubleshooting
+
+See [`docs/FAQ.md`](docs/FAQ.md) for setup troubleshooting, the `Knapcode.TorSharp` migration
+table, running multiple parallel instances, custom logging, and Linux Privoxy dependency
+workarounds.
+
+## License and credits
+
+- License: [MIT](LICENSE) — original copyright © 2020 Joel Verhagen; fork modifications © 2024-2026 Nefarius.
+- Upstream project: [joelverhagen/TorSharp](https://github.com/joelverhagen/TorSharp)
+- Changelog: [CHANGELOG.md](CHANGELOG.md)
+- Process management: [CliWrap](https://github.com/Tyrrrz/CliWrap) by Oleksii Holub
