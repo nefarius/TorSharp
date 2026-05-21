@@ -4,8 +4,12 @@ on:
   push:
     branches: [master]
     tags: ['v*']
+    paths-ignore:
+      - '**.md'
   pull_request:
     branches: [master]
+    paths-ignore:
+      - '**.md'
   schedule:
     # Weekly upstream-only test run (Tuesdays at 04:00 UTC) to detect when
     # Tor/Privoxy upstream distribution sites change their format or become
