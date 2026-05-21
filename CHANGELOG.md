@@ -1,9 +1,13 @@
 # Changelog
 
 ## Unreleased
+
+## 7.0.2
 * Add `net10.0` TFM to `Nefarius.Utilities.TorProxy` and `Nefarius.Utilities.TorProxy.DependencyInjection`; bump samples, Docker base images, and repo SDK pin to .NET 10.
 * CI runs test target frameworks sequentially to avoid port/cache contention when three parallel `testhost` processes run Tor end-to-end tests.
 * Harden test infrastructure: `PassThroughProxy` listener uses cancellable `AcceptTcpClientAsync`, tool shutdown times out after force-kill, download cache waits are bounded, and port reservation no longer sleeps under a global lock.
+* Overhaul README and extract FAQ to `docs/FAQ.md`; restore nuget.org badges for both packages.
+* Skip CI on Markdown-only commits (`paths-ignore: '**.md'`).
 
 ## 7.0.0
 * Added `Nefarius.Utilities.TorProxy.DependencyInjection` companion package (`net8.0`/`net9.0`) with:
