@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 7.1.0
+* Document supported CPU architectures: only x86 (32-bit) and x64 / x86_64 (64-bit) are supported via the auto-downloaded Tor expert bundle.
+* Improve `TorProxyException` message when running on an unsupported architecture (e.g. ARM64): the message now includes the real `RuntimeInformation.ProcessArchitecture` value (instead of just "Unknown") and appends the supported set plus a direct link to the new FAQ section.
+* Add "Running on ARM64 (or other unsupported CPU architectures)" FAQ section covering the Windows-on-ARM x64-emulation workaround and the Linux ARM64 system-Tor path.
+* Add CPU architecture row to the README "Supported systems" table and an ARM64 limitation bullet.
+
 ## 7.0.2
 * Add `net10.0` TFM to `Nefarius.Utilities.TorProxy` and `Nefarius.Utilities.TorProxy.DependencyInjection`; bump samples, Docker base images, and repo SDK pin to .NET 10.
 * CI runs test target frameworks sequentially to avoid port/cache contention when three parallel `testhost` processes run Tor end-to-end tests.
