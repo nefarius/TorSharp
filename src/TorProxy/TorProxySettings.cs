@@ -253,8 +253,17 @@ public class TorProxySettings
     internal void RejectRuntime(string action)
     {
         var message = new StringBuilder();
-        message.Append($"Cannot {action} on {OSPlatform} OS and {Architecture} architecture.");
+        var processArch = RuntimeInformation.ProcessArchitecture;
+        message.Append($"Cannot {action} on {OSPlatform} OS and {Architecture} architecture (process architecture: {processArch}).");
         message.Append($" OS description: {RuntimeInformation.OSDescription}.");
+        if (Architecture == TorProxyArchitecture.Unknown)
+        {
+            message.Append(
+                $" Only {TorProxyArchitecture.X86} and {TorProxyArchitecture.X64} are supported." +
+                " See https://github.com/nefarius/TorSharp/blob/master/docs/FAQ.md" +
+                "#running-on-arm64-or-other-unsupported-cpu-architectures for workarounds.");
+        }
+
         throw new TorProxyException(message.ToString());
     }
 }

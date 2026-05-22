@@ -19,6 +19,64 @@ If you were using `Knapcode.TorSharp`, here is the migration table:
 | `TorSharpArchitecture` | `TorProxyArchitecture` |
 | `TorSharpOSPlatform` | `TorProxyOSPlatform` |
 
+## Running on ARM64 (or other unsupported CPU architectures)
+
+### Why it fails today
+
+The Tor Project publishes `tor-expert-bundle` binaries for the following targets only:
+
+| OS | Architectures |
+|---|---|
+| Windows | i686, x86_64 |
+| Linux | i686, x86_64 |
+| macOS | x86_64, aarch64 |
+| Android | x86, x86_64, armv7, aarch64 |
+
+There is no `tor-expert-bundle-linux-aarch64-*` and no `tor-expert-bundle-windows-arm64-*`. The [TorSharp.Mirror](https://github.com/nefarius/TorSharp.Mirror) binary cache mirrors whatever the Tor Project publishes, so it cannot serve them either. Privoxy upstream (`silvester.org.uk`) only publishes `amd64` and `i386` Debian packages.
+
+### What the library does today
+
+`TorProxySettings` auto-detects the process architecture via `RuntimeInformation.ProcessArchitecture`. Any value other than `X86` or `X64` (e.g. `Arm64`, `Arm`, `RiscV64`) maps to `TorProxyArchitecture.Unknown`. As soon as a tool resolver is asked to pick a binary — in `TorProxyToolFetcher.FetchAsync()` or `TorProxy.ConfigureAndStartAsync()` — it throws a `TorProxyException` with a message that names the real process architecture and points here.
+
+### Workaround: Windows on ARM (recommended)
+
+Publish your .NET application as `win-x64` instead of `win-arm64`:
+
+```bash
+dotnet publish -r win-x64 --self-contained
+```
+
+Windows 11 on ARM transparently emulates x64 processes. `RuntimeInformation.ProcessArchitecture` reports `X64` for an x64-published binary, so the library detects the architecture correctly and operates unchanged.
+
+### Workaround: Linux ARM64
+
+There is no in-library workaround — `TorSettings.ExecutablePathOverride` alone is not sufficient because the architecture check happens before the override is honoured. Instead, install Tor from your distribution's package manager and talk to it directly:
+
+```bash
+# Debian / Ubuntu (arm64 packages are published by the Tor Project)
+sudo apt install -y tor
+```
+
+Point your `HttpClient` at the system Tor's SOCKS5 port (default `9050`) without using `TorProxyToolFetcher` or `TorProxy`:
+
+```csharp
+var handler = new HttpClientHandler
+{
+    Proxy = new WebProxy(new Uri("socks5://localhost:9050"))
+};
+using var httpClient = new HttpClient(handler);
+```
+
+For a Debian/Ubuntu arm64 system, the official Tor Project apt repository (`deb.torproject.org`) provides up-to-date packages for bookworm, jammy, noble, and other distributions:
+
+```
+https://deb.torproject.org/torproject.org
+```
+
+### macOS on ARM
+
+macOS support is not planned regardless of architecture.
+
 ## The tool fetcher is throwing an exception. What do I do?
 
 By default `TorProxyToolFetcher` tries to download binaries from the
