@@ -34,6 +34,7 @@ Use Tor for your C# HTTP clients via .NET's built-in SOCKS5 support. Privoxy is 
 ## Limitations
 
 - macOS support is not planned.
+- ARM64 (Windows on ARM, Linux aarch64) is not directly supported because the Tor Project does not publish a `tor-expert-bundle` for these targets. See [docs/FAQ.md](docs/FAQ.md#running-on-arm64-or-other-unsupported-cpu-architectures) for workarounds.
 - .NET Framework targets were dropped in v3.0.0. Use v2.x for .NET Framework 4.6.2/4.7.2 support.
 - Privoxy is disabled by default since v6.0.0; callers that relied on the HTTP proxy front-end must explicitly set `PrivoxySettings.Disable = false`.
 - No type is thread-safe. Use separate instances per parallel task (see [docs/FAQ.md](docs/FAQ.md)).
@@ -48,6 +49,7 @@ Use Tor for your C# HTTP clients via .NET's built-in SOCKS5 support. Privoxy is 
 | Linux | Ubuntu 22.04, Ubuntu 24.04, Debian 11, Debian 12 |
 | Linux (system binary) | CentOS/RHEL and Alpine via `ExecutablePathOverride` |
 | macOS | Not planned |
+| CPU architectures | x86 (32-bit) and x64 / x86_64 (64-bit). ARM64 is not directly supported; see [FAQ](docs/FAQ.md#running-on-arm64-or-other-unsupported-cpu-architectures). |
 
 ## Install
 
