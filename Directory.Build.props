@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TorProxyStableVersion>7.0.2</TorProxyStableVersion>
+    <TorProxyStableVersion>7.1.0</TorProxyStableVersion>
 
     <BranchVersionLabel Condition="'$(BranchVersionLabel)' == '' and '$(GITHUB_HEAD_REF)' != ''">$(GITHUB_HEAD_REF)</BranchVersionLabel>
     <BranchVersionLabel Condition="'$(BranchVersionLabel)' == '' and '$(GITHUB_REF)' != ''">$(GITHUB_REF)</BranchVersionLabel>
