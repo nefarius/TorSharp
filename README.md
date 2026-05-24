@@ -1,5 +1,14 @@
 # <img src="assets/NSS-128x128.png" align="left" />Nefarius.Utilities.TorProxy
 
+[![.NET](https://github.com/nefarius/TorSharp/actions/workflows/build.yml/badge.svg)](https://github.com/nefarius/TorSharp/actions/workflows/build.yml)
+![.NET Standard 2.0](https://img.shields.io/badge/.NET-Standard%202.0-blue)
+![.NET 8](https://img.shields.io/badge/.NET-8-blue)
+![.NET 9](https://img.shields.io/badge/.NET-9-blue)
+![.NET 10](https://img.shields.io/badge/.NET-10-blue)
+[![Assisted by Cursor AI](https://img.shields.io/badge/Assisted%20by-Cursor%20AI-8B5CF6?style=flat)](https://cursor.com/)  
+
+&nbsp;
+
 > [!NOTE]
 > **Fork notice.** `Nefarius.Utilities.TorProxy` is a maintained fork of
 > [`Knapcode.TorSharp`](https://github.com/joelverhagen/TorSharp) by
@@ -8,14 +17,8 @@
 > The upstream project remains the canonical reference. See
 > [CHANGELOG.md](CHANGELOG.md) for what changed in this fork.
 
-[![.NET](https://github.com/nefarius/TorSharp/actions/workflows/build.yml/badge.svg)](https://github.com/nefarius/TorSharp/actions/workflows/build.yml)
-![.NET Standard 2.0](https://img.shields.io/badge/.NET-Standard%202.0-blue)
-![.NET 8](https://img.shields.io/badge/.NET-8-blue)
-![.NET 9](https://img.shields.io/badge/.NET-9-blue)
-![.NET 10](https://img.shields.io/badge/.NET-10-blue)
-[![Assisted by Cursor AI](https://img.shields.io/badge/Assisted%20by-Cursor%20AI-8B5CF6?style=flat)](https://cursor.com/)  
 [![Nuget](https://img.shields.io/nuget/v/Nefarius.Utilities.TorProxy?label=Nefarius.Utilities.TorProxy)](https://www.nuget.org/packages/Nefarius.Utilities.TorProxy/)
-[![Nuget](https://img.shields.io/nuget/dt/Nefarius.Utilities.TorProxy)](https://www.nuget.org/packages/Nefarius.Utilities.TorProxy/)  
+[![Nuget](https://img.shields.io/nuget/dt/Nefarius.Utilities.TorProxy)](https://www.nuget.org/packages/Nefarius.Utilities.TorProxy/)
 [![Nuget](https://img.shields.io/nuget/v/Nefarius.Utilities.TorProxy.DependencyInjection?label=Nefarius.Utilities.TorProxy.DependencyInjection)](https://www.nuget.org/packages/Nefarius.Utilities.TorProxy.DependencyInjection/)
 [![Nuget](https://img.shields.io/nuget/dt/Nefarius.Utilities.TorProxy.DependencyInjection)](https://www.nuget.org/packages/Nefarius.Utilities.TorProxy.DependencyInjection/)
 
