@@ -1,4 +1,4 @@
-# Nefarius.Utilities.TorProxy
+# <img src="assets/NSS-128x128.png" align="left" />Nefarius.Utilities.TorProxy
 
 > [!NOTE]
 > **Fork notice.** `Nefarius.Utilities.TorProxy` is a maintained fork of
