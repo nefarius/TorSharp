@@ -1,5 +1,6 @@
-# Nefarius.Utilities.TorProxy (fork of Knapcode.TorSharp)
+# Nefarius.Utilities.TorProxy
 
+> [!NOTE]
 > **Fork notice.** `Nefarius.Utilities.TorProxy` is a maintained fork of
 > [`Knapcode.TorSharp`](https://github.com/joelverhagen/TorSharp) by
 > [Joel Verhagen](https://github.com/joelverhagen). All original copyright is preserved
@@ -12,8 +13,9 @@
 ![.NET 8](https://img.shields.io/badge/.NET-8-blue)
 ![.NET 9](https://img.shields.io/badge/.NET-9-blue)
 ![.NET 10](https://img.shields.io/badge/.NET-10-blue)
+[![Assisted by Cursor AI](https://img.shields.io/badge/Assisted%20by-Cursor%20AI-8B5CF6?style=flat)](https://cursor.com/)  
 [![Nuget](https://img.shields.io/nuget/v/Nefarius.Utilities.TorProxy?label=Nefarius.Utilities.TorProxy)](https://www.nuget.org/packages/Nefarius.Utilities.TorProxy/)
-[![Nuget](https://img.shields.io/nuget/dt/Nefarius.Utilities.TorProxy)](https://www.nuget.org/packages/Nefarius.Utilities.TorProxy/)
+[![Nuget](https://img.shields.io/nuget/dt/Nefarius.Utilities.TorProxy)](https://www.nuget.org/packages/Nefarius.Utilities.TorProxy/)  
 [![Nuget](https://img.shields.io/nuget/v/Nefarius.Utilities.TorProxy.DependencyInjection?label=Nefarius.Utilities.TorProxy.DependencyInjection)](https://www.nuget.org/packages/Nefarius.Utilities.TorProxy.DependencyInjection/)
 [![Nuget](https://img.shields.io/nuget/dt/Nefarius.Utilities.TorProxy.DependencyInjection)](https://www.nuget.org/packages/Nefarius.Utilities.TorProxy.DependencyInjection/)
 
