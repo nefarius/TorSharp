@@ -7,7 +7,7 @@
 ![.NET 10](https://img.shields.io/badge/.NET-10-blue)
 [![Assisted by Cursor AI](https://img.shields.io/badge/Assisted%20by-Cursor%20AI-8B5CF6?style=flat)](https://cursor.com/)  
 
-&nbsp;
+Use Tor for your C# HTTP clients via .NET's built-in SOCKS5 support.
 
 > [!NOTE]
 > **Fork notice.** `Nefarius.Utilities.TorProxy` is a maintained fork of
@@ -21,8 +21,6 @@
 [![Nuget](https://img.shields.io/nuget/dt/Nefarius.Utilities.TorProxy)](https://www.nuget.org/packages/Nefarius.Utilities.TorProxy/)
 [![Nuget](https://img.shields.io/nuget/v/Nefarius.Utilities.TorProxy.DependencyInjection?label=Nefarius.Utilities.TorProxy.DependencyInjection)](https://www.nuget.org/packages/Nefarius.Utilities.TorProxy.DependencyInjection/)
 [![Nuget](https://img.shields.io/nuget/dt/Nefarius.Utilities.TorProxy.DependencyInjection)](https://www.nuget.org/packages/Nefarius.Utilities.TorProxy.DependencyInjection/)
-
-Use Tor for your C# HTTP clients via .NET's built-in SOCKS5 support. Privoxy is available as an opt-in HTTP-proxy front-end for legacy consumers.
 
 ## Features
 
