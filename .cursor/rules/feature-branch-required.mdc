@@ -1,0 +1,24 @@
+---
+description: Introduce features and fixes on a new branch from master
+alwaysApply: true
+---
+
+# New branch required
+
+Do not implement or commit features, bugfixes, or other product changes on `master`.
+Documentation-only and build-system changes may stay on the current branch.
+
+Before making a change that needs a branch, check whether the current branch already
+is the requested work.
+
+- If it is, continue on that branch.
+- Otherwise, create a new branch from current `master` first (`feat/…` or `fix/…`), then make
+  changes there.
+- Before creating or switching to that branch, check for uncommitted changes. If the worktree
+  is dirty, stop and ask the user what to do; do not switch or stash. Proceed only when it is
+  clean.
+- Do not merge or push to `master` unless the user explicitly asks.
+
+Documentation includes README, changelog, and other markdown that does not change behavior.
+Build-system changes include CI workflows, Dependabot, and project or SDK configuration that
+does not change library behavior.
