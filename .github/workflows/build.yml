@@ -61,7 +61,7 @@ jobs:
         run: echo "month=$(date -u +%Y%m)" >> "$GITHUB_OUTPUT"
 
       - name: Cache test downloads
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: tests/cache
           # Monthly bucket: same key for the whole calendar month so hot runs
