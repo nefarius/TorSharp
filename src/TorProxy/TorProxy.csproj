@@ -8,7 +8,6 @@
     <NoWarn>1591</NoWarn>
 
     <PackageId>Nefarius.Utilities.TorProxy</PackageId>
-    <Version>$(TorProxyVersion)</Version>
     <Authors>Joel Verhagen, Nefarius</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>Fork of Knapcode.TorSharp by Joel Verhagen. Use Tor for your C# HTTP clients via .NET's built-in SOCKS5 support. A Privoxy HTTP-proxy front-end remains available (opt-in) for netstandard2.0 and legacy HTTP-proxy consumers.</Description>
@@ -41,6 +40,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="MinVer">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="SharpCompress" />
   </ItemGroup>
 
@@ -48,13 +51,5 @@
     <PackageReference Include="System.ServiceModel.Syndication" />
     <PackageReference Include="System.Text.Json" />
   </ItemGroup>
-
-  <PropertyGroup>
-    <BeforePack>OutputVersion</BeforePack>
-  </PropertyGroup>
-
-  <Target Name="OutputVersion">
-    <Message Text="TorProxy version: $(TorProxyVersion)" Importance="high" />
-  </Target>
 
 </Project>

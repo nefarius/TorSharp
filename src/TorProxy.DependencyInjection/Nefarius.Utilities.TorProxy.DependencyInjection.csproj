@@ -8,7 +8,6 @@
     <NoWarn>1591</NoWarn>
 
     <PackageId>Nefarius.Utilities.TorProxy.DependencyInjection</PackageId>
-    <Version>$(TorProxyVersion)</Version>
     <Authors>Nefarius</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>ASP.NET Core / Generic Host integration for Nefarius.Utilities.TorProxy. Provides AddTorProxy(), IHostedService auto-start, and UseTorSocks5Proxy() for IHttpClientBuilder.</Description>
@@ -44,6 +43,10 @@
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Http" />
     <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="MinVer">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>
