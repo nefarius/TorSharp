@@ -21,6 +21,7 @@ using Xunit.Abstractions;
 namespace Nefarius.Utilities.TorProxy.Tests
 {
     [Collection(HttpCollection.Name)]
+    [Trait("Category", TestCategories.EndToEnd)]
     public class EndToEnd
     {
         private readonly HttpFixture _httpFixture;
