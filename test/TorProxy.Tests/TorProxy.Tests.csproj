@@ -18,6 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\TorProxy\TorProxy.csproj" />
     <ProjectReference Include="..\PassThroughProxy\PassThroughProxy\PassThroughProxy.csproj" />
   </ItemGroup>

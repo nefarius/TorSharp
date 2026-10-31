@@ -79,6 +79,14 @@ jobs:
             9.0.x
             10.0.x
 
+      - name: Cache NuGet packages
+        uses: actions/cache@v6
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('Directory.Packages.props', '**/*.csproj', 'global.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
       - name: Restore
         run: dotnet restore TorProxy.sln
 
@@ -134,11 +142,18 @@ jobs:
           # Run each target framework sequentially so parallel Tor/E2E hosts do not
           # exhaust ports or contend on the shared test download cache (net10.0 was
           # hanging at the first HttpCollection test when all three TFMs ran at once).
+          # The library code is identical across net8/9/10, so the slow Tor/network
+          # end-to-end tests only run on net10.0; unit tests run on every framework.
           for framework in net8.0 net9.0 net10.0; do
-            dotnet test TorProxy.sln --configuration Release --no-restore --no-build --framework "$framework" --logger "console;verbosity=normal" --blame-hang-timeout 30m
+            filter=()
+            if [ "$framework" != "net10.0" ]; then
+              filter=(--filter "Category!=EndToEnd")
+            fi
+            dotnet test TorProxy.sln --configuration Release --no-restore --no-build --framework "$framework" "${filter[@]}" --logger "console;verbosity=normal" --blame-hang-timeout 30m
           done
 
       - name: Format
+        if: runner.os == 'Linux'
         run: dotnet format TorProxy.sln --no-restore --verify-no-changes
 
       - name: Pack

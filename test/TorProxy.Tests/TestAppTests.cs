@@ -11,6 +11,7 @@ using Xunit.Abstractions;
 
 namespace Nefarius.Utilities.TorProxy.Tests
 {
+    [Trait("Category", TestCategories.EndToEnd)]
     public class TestAppTests : IClassFixture<TestAppFixture>
     {
         private readonly TestAppFixture _fixture;
