@@ -14,7 +14,7 @@
     <PackageVersion Include="MinVer" Version="8.0.0" />
     <PackageVersion Include="SharpCompress" Version="0.50.9" />
     <PackageVersion Include="System.ServiceModel.Syndication" Version="10.0.14" />
-    <PackageVersion Include="System.Text.Json" Version="10.0.14" />
+    <PackageVersion Include="System.Text.Json" Version="11.0.0" />
   </ItemGroup>
   <!-- Test dependencies -->
   <ItemGroup>
