@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
+FROM mcr.microsoft.com/dotnet/sdk:11.0-alpine AS build
 WORKDIR /src/app
 
 RUN mkdir ../TorProxy
@@ -14,7 +14,7 @@ RUN dotnet build
 FROM build AS publish
 RUN dotnet publish -c Release -o /app
 
-FROM mcr.microsoft.com/dotnet/runtime:10.0-alpine
+FROM mcr.microsoft.com/dotnet/runtime:11.0-alpine
 WORKDIR /app
 COPY --from=publish /app .
 
